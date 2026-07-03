@@ -1,19 +1,16 @@
-# ILoveBesi: Web App Kalkulator Besi Beton Konstruksi
+# React + Vite
 
-Aplikasi kalkulator besi beton yang berfokus pada akurasi riil lapangan untuk estimator (Quantity Surveyor), kontraktor, pelaksana lapangan, mandor, dan pemilik rumah swadaya.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Fitur Utama (Fase 1 - MVP)
-- **Kalkulator Berat Jenis Standar**: Menghitung berat total besi dalam Kg dan Ton berdasarkan diameter, panjang batang, dan jumlah batang.
-- **Pemilihan Tipe Besi**: Mendukung Besi Polos (BjTP) dan Besi Sirip/Ulir (BjTS) dengan diameter standar SNI.
-- **Tabel Rekapitulasi**: BBS (Bar Bending Schedule) sederhana untuk mencatat hasil perhitungan per komponen struktur.
-- **Penyimpanan Lokal**: Otomatis menyimpan rekapitulasi ke local storage browser agar data tidak hilang.
+Currently, two official plugins are available:
 
-## Rencana Fitur Lanjutan (Fase 2)
-- Algoritma Optimasi Pemotongan (*Cutting Stock Problem*) untuk meminimalisasi sisa besi (*waste*).
-- Kalkulator Panjang Penyaluran (*Overlap/Lap Splice*).
-- Kait Begel/Sengkang Tahan Gempa (135° Hooks).
-- Zonasi Begel Dinamis (Tumpuan vs Lapangan).
-- Koreksi Besi Toleransi (Besi Banci).
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Pengembangan
-Aplikasi ini dikembangkan menggunakan standard HTML, CSS modern, dan JavaScript.
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the Oxlint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.

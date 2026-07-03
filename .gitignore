@@ -7,23 +7,26 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Diagnostic reports
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+node_modules
+dist
+dist-ssr
+*.local
 
-# Dependency directories
-node_modules/
-jspm_packages/
-web_modules/
-
-# IDEs and editors
-.idea/
-.vscode/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
 *.suo
-*.ntvsca*
+*.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# OS metadata
-.DS_Store
-Thumbs.db
+# local env files
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
