@@ -1,22 +1,32 @@
 import { useMemo } from 'react';
+import { optimizeCuttingStock } from '../utils/optimizations';
 
 export default function DashboardView({ items, onNavigateToCalculator }) {
-  // Dynamic stats based on recapList items
+  // Dynamic stats & optimization calculations based on recapList items
+  const optData = useMemo(() => {
+    return optimizeCuttingStock(items);
+  }, [items]);
+
   const stats = useMemo(() => {
     const activeProjectsCount = items.length > 0
       ? new Set(items.map(item => item.elementName)).size
-      : '—'; // Tampilkan dash jika belum ada data nyata
+      : '—';
     const totalWeightTon = items.reduce((acc, item) => acc + item.weightTon, 0);
-    const displayedWeight = totalWeightTon > 0
-      ? `${totalWeightTon.toFixed(2)} tn`
-      : '842 tn'; // Demo fallback
+    const displayedWeight = totalWeightTon > 0 
+      ? `${totalWeightTon.toFixed(2)} tn` 
+      : '842 tn'; // Default fallback value from mock
+
+    // If items exist, calculate material savings based on our optimization engine
+    const materialSavingsVal = items.length > 0
+      ? `${(100 - optData.waste).toFixed(1)}%`
+      : '18.4%';
 
     return {
       activeProjects: activeProjectsCount,
       totalOptimized: displayedWeight,
-      materialSavings: '18.4%'
+      materialSavings: materialSavingsVal
     };
-  }, [items]);
+  }, [items, optData]);
 
   return (
     <div className="dashboard-view">
@@ -52,13 +62,13 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
 
         <div className="stat-card accent-blue">
           <div className="stat-card-header">
-            <span>MATERIAL SAVINGS</span>
+            <span>MATERIAL EFFICIENCY</span>
             <svg className="stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
             </svg>
           </div>
           <div className="stat-value">{stats.materialSavings}</div>
-          <div className="stat-desc">Average waste reduction</div>
+          <div className="stat-desc">Optimized cut utilization</div>
         </div>
       </div>
 
@@ -90,7 +100,7 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
                     <tr key={item.id}>
                       <td>{item.elementName}</td>
                       <td>{item.steelType === 'BjTP' ? 'Grade 280 (Plain)' : 'Grade 420 (Deformed)'} ({item.diameter}mm)</td>
-                      <td className="text-warning font-bold">2.4%</td>
+                      <td className="text-warning font-bold">{(optData.waste).toFixed(1)}%</td>
                       <td>Rp {(item.weightKg * 1200).toLocaleString('id-ID')}</td>
                     </tr>
                   ))
@@ -180,7 +190,7 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
               <span className="bar-label">WEEK 15</span>
             </div>
             <div className="bar-wrapper current">
-              <div className="bar accent-yellow-bar" style={{ height: '90%' }}></div>
+              <div className="bar accent-yellow-bar" style={{ height: items.length > 0 ? `${optData.efficiency}%` : '90%' }}></div>
               <span className="bar-label">CURRENT</span>
             </div>
           </div>
@@ -189,14 +199,21 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
         <div className="panel opt-result-panel">
           <h3>RECENT OPTIMIZATION RESULT</h3>
           <div className="opt-meta">
-            <strong>Cut List #442: Efficiency 98.2%</strong>
+            {items.length > 0 ? (
+              <strong>BBS Optimization: Efficiency {optData.efficiency}%</strong>
+            ) : (
+              <strong>Cut List #442: Efficiency 98.2%</strong>
+            )}
           </div>
           <div className="progress-bar-container">
-            <div className="progress-bar-fill" style={{ width: '98.2%' }}></div>
+            <div 
+              className="progress-bar-fill" 
+              style={{ width: items.length > 0 ? `${optData.efficiency}%` : '98.2%' }}
+            ></div>
           </div>
           <div className="progress-labels">
-            <span>USED: 98.2%</span>
-            <span>OFF-CUT: 1.8%</span>
+            <span>USED: {items.length > 0 ? `${optData.efficiency}%` : '98.2%'}</span>
+            <span>OFF-CUT: {items.length > 0 ? `${optData.waste}%` : '1.8%'}</span>
           </div>
         </div>
       </div>

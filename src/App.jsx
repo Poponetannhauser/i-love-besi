@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import CalculatorForm from './components/CalculatorForm';
-import RecapTable from './components/RecapTable';
 import DashboardView from './components/DashboardView';
+import InputsView from './components/InputsView';
+import InventoryView from './components/InventoryView';
+import CutListsView from './components/CutListsView';
+import LandingPage from './components/LandingPage';
 import { calculateRebarWeight } from './utils/formulas';
 import { loadRecapData, saveRecapData, clearRecapData } from './utils/storage';
 
 export default function App() {
   const [recapList, setRecapList] = useState([]);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [view, setView] = useState('landing'); // 'landing' or 'app'
 
   // Load initial data on mount
   useEffect(() => {
@@ -46,11 +49,37 @@ export default function App() {
     setRecapList([]);
   };
 
+  // Helper to determine the header title dynamically
+  const getHeaderTitle = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return 'Dashboard Utama';
+      case 'inputs':
+        return 'Input Optimasi & Visualisasi';
+      case 'inventory':
+        return 'Rekapitulasi Material';
+      case 'cut-lists':
+        return 'Instruksi Pemotongan Lapangan';
+      case 'optimizations':
+        return 'Optimasi & Cutting Stock';
+      case 'history':
+        return 'Riwayat Proyek';
+      default:
+        return 'REBAROPTIX';
+    }
+  };
+
+  if (view === 'landing') {
+    return <LandingPage onEnterApp={() => setView('app')} />;
+  }
+
   return (
     <div className="app-container">
       {/* Sidebar Navigation */}
       <aside className="sidebar">
-        <div className="brand-logo">REBAROPTIX</div>
+        <div className="brand-logo" onClick={() => setView('landing')} style={{ cursor: 'pointer' }}>
+          REBAROPTIX
+        </div>
         
         <div className="project-context">
           <div className="project-title">PROJECT ALPHA</div>
@@ -66,6 +95,16 @@ export default function App() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
             </svg>
             Dashboard
+          </button>
+
+          <button 
+            className={`nav-item ${activeTab === 'inputs' ? 'active' : ''}`}
+            onClick={() => setActiveTab('inputs')}
+          >
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Inputs
           </button>
           
           <button 
@@ -85,7 +124,7 @@ export default function App() {
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
-            Cut Lists (BBS)
+            Cut Lists
           </button>
 
           <button 
@@ -98,19 +137,9 @@ export default function App() {
             </svg>
             Optimizations
           </button>
-
-          <button 
-            className={`nav-item ${activeTab === 'history' ? 'active' : ''}`}
-            onClick={() => setActiveTab('history')}
-          >
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            History
-          </button>
         </nav>
 
-        <button className="btn-action-sidebar" onClick={() => setActiveTab('cut-lists')}>
+        <button className="btn-action-sidebar" onClick={() => setActiveTab('inputs')}>
           NEW OPTIMIZATION
         </button>
 
@@ -126,30 +155,64 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="main-content">
-        {activeTab === 'dashboard' && (
-          <DashboardView 
-            items={recapList} 
-            onNavigateToCalculator={() => setActiveTab('cut-lists')} 
-          />
-        )}
-
-        {activeTab === 'cut-lists' && (
-          <div className="calculator-layout-grid">
-            <CalculatorForm onSubmit={handleAddRow} />
-            <RecapTable 
-              items={recapList} 
-              onDelete={handleDeleteRow} 
-              onClearAll={handleClearAll} 
+        {/* Top Header Bar */}
+        <header className="app-header-bar">
+          <div className="header-title-section">
+            <h2>{getHeaderTitle()}</h2>
+          </div>
+          <div className="header-user-controls">
+            <button className="icon-btn-header" title="Notifikasi">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </button>
+            <button className="icon-btn-header" title="Pengaturan">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+            <img 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" 
+              alt="Profil User" 
+              className="avatar-circle"
             />
           </div>
-        )}
+        </header>
 
-        {['inventory', 'optimizations', 'history'].includes(activeTab) && (
-          <div className="panel empty-view-panel">
-            <h2 style={{ textTransform: 'uppercase', marginBottom: '1rem' }}>{activeTab}</h2>
-            <p>Bagian ini sedang dalam pengembangan untuk mendukung data riil lapangan.</p>
-          </div>
-        )}
+        {/* View Routing */}
+        <div className="content-body">
+          {activeTab === 'dashboard' && (
+            <DashboardView 
+              items={recapList} 
+              onNavigateToCalculator={() => setActiveTab('inputs')} 
+            />
+          )}
+
+          {activeTab === 'inputs' && (
+            <InputsView 
+              items={recapList}
+              onAddRow={handleAddRow}
+              onDeleteRow={handleDeleteRow}
+              onClearAll={handleClearAll}
+            />
+          )}
+
+          {activeTab === 'inventory' && (
+            <InventoryView items={recapList} />
+          )}
+
+          {activeTab === 'cut-lists' && (
+            <CutListsView items={recapList} />
+          )}
+
+          {['optimizations', 'history'].includes(activeTab) && (
+            <div className="panel empty-view-panel">
+              <h2 style={{ textTransform: 'uppercase', marginBottom: '1rem' }}>{activeTab}</h2>
+              <p>Bagian ini sedang dalam pengembangan untuk mendukung data riil lapangan.</p>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

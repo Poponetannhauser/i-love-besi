@@ -1,0 +1,216 @@
+import { useMemo } from 'react';
+import { optimizeCuttingStock } from '../utils/optimizations';
+
+// Mock/Default ledger rows when items is empty
+const DEFAULT_LEDGER_ROWS = [
+  { dia: 'D10', grade: 'BJTS 420B', length: 12.00, qty: 4200, unitWeight: 0.617, weight: 31096.80, status: 'IN STOCK' },
+  { dia: 'D13', grade: 'BJTS 420B', length: 12.00, qty: 2850, unitWeight: 1.042, weight: 35636.40, status: 'IN STOCK' },
+  { dia: 'D16', grade: 'BJTS 420B', length: 12.00, qty: 1120, unitWeight: 1.578, weight: 21208.32, status: 'LOW STOCK' },
+  { dia: 'D19', grade: 'BJTS 420B', length: 12.00, qty: 5400, unitWeight: 2.226, weight: 144244.80, status: 'IN STOCK' },
+  { dia: 'D22', grade: 'BJTS 420B', length: 12.00, qty: 3200, unitWeight: 2.984, weight: 114585.60, status: 'IN STOCK' },
+  { dia: 'D25', grade: 'BJTS 420B', length: 12.00, qty: 1650, unitWeight: 3.853, weight: 76289.40, status: 'ORDERED' }
+];
+
+export default function InventoryView({ items }) {
+  // Dynamic aggregations
+  const stats = useMemo(() => {
+    const totalKg = items.reduce((acc, item) => acc + item.weightKg, 0);
+    const totalTonVal = totalKg / 1000;
+    
+    const optData = optimizeCuttingStock(items);
+
+    const activeCutListsCount = new Set(items.map(item => item.elementName)).size;
+
+    return {
+      totalWeightTon: items.length > 0 ? totalTonVal.toFixed(2) : '412.50',
+      stockStatus: items.length > 0 ? 'Nominal: OK' : 'Critical: D16',
+      stockStatusSub: items.length > 0 ? 'All levels stable' : '48h until stockout',
+      optRate: items.length > 0 ? `${optData.efficiency}%` : '94.2%',
+      optRateSub: items.length > 0 ? `Waste: ${optData.waste}%` : 'Waste: 24.1 MT',
+      activeCutLists: items.length > 0 ? activeCutListsCount : 12
+    };
+  }, [items]);
+
+  // Master Ledger grouping
+  const ledgerRows = useMemo(() => {
+    if (!items || items.length === 0) {
+      return DEFAULT_LEDGER_ROWS;
+    }
+
+    // Group items by diameter
+    const grouped = {};
+    items.forEach(item => {
+      const diaKey = `D${item.diameter}`;
+      if (!grouped[diaKey]) {
+        grouped[diaKey] = {
+          dia: diaKey,
+          grade: 'BJTS 420B',
+          length: 12.00,
+          qty: 0,
+          unitWeight: 0.006165 * Math.pow(item.diameter, 2),
+          weight: 0
+        };
+      }
+      grouped[diaKey].qty += item.quantity;
+      grouped[diaKey].weight += item.weightKg;
+    });
+
+    return Object.values(grouped).map(row => {
+      // Determine simulated status based on quantity
+      let status = 'IN STOCK';
+      if (row.qty < 50) status = 'LOW STOCK';
+      else if (row.qty > 500) status = 'ORDERED';
+
+      return {
+        ...row,
+        unitWeight: Number(row.unitWeight.toFixed(3)),
+        weight: Number(row.weight.toFixed(2)),
+        status
+      };
+    });
+  }, [items]);
+
+  const totalLedgerWeight = useMemo(() => {
+    const total = ledgerRows.reduce((sum, row) => sum + row.weight, 0);
+    return total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }, [ledgerRows]);
+
+  return (
+    <div className="dashboard-view">
+      {/* Top Cards Grid */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-card-header">
+            <span>TOTAL WEIGHT (MT)</span>
+          </div>
+          <div className="stat-value">{stats.totalWeightTon}</div>
+          <div className="stat-desc" style={{ color: '#10b981', fontWeight: '800' }}>
+            +12% &uarr; <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>vs last month</span>
+          </div>
+        </div>
+
+        <div className="stat-card" style={{ borderLeft: stats.stockStatus.includes('Critical') ? '4px solid var(--danger)' : '1px solid #e5e7eb' }}>
+          <div className="stat-card-header">
+            <span>STOCK STATUS</span>
+          </div>
+          <div className="stat-value" style={{ color: stats.stockStatus.includes('Critical') ? 'var(--danger)' : 'var(--text-dark)' }}>
+            {stats.stockStatus}
+          </div>
+          <div className="stat-desc">{stats.stockStatusSub}</div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-card-header">
+            <span>OPTIMIZATION RATE</span>
+          </div>
+          <div className="stat-value">{stats.optRate}</div>
+          <div className="stat-desc">{stats.optRateSub}</div>
+        </div>
+
+        <div className="stat-card accent-yellow">
+          <div className="stat-card-header" style={{ color: 'var(--text-dark)' }}>
+            <span>ACTIVE CUT LISTS</span>
+          </div>
+          <div className="stat-value">{stats.activeCutLists}</div>
+          <div className="stat-desc">Next delivery: Today 14:00</div>
+        </div>
+      </div>
+
+      {/* Master Rebar Ledger Panel */}
+      <div className="panel" style={{ padding: 0 }}>
+        <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6' }}>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: '800' }}>MASTER REBAR LEDGER</h3>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button className="btn-outline-support" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>Export CSV</button>
+            <button className="btn-rounded-yellow" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>Print Report</button>
+          </div>
+        </div>
+
+        <div className="table-responsive">
+          <table className="recap-table" style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th>DIA (MM)</th>
+                <th>GRADE</th>
+                <th>LENGTH (M)</th>
+                <th>QUANTITY (PCS)</th>
+                <th>UNIT WEIGHT (KG/M)</th>
+                <th>TOTAL WEIGHT (KG)</th>
+                <th>STATUS</th>
+                <th style={{ textAlign: 'center' }}>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ledgerRows.map((row, idx) => (
+                <tr key={idx}>
+                  <td className="font-bold">{row.dia}</td>
+                  <td>{row.grade}</td>
+                  <td>{row.length.toFixed(2)}</td>
+                  <td>{row.qty.toLocaleString('id-ID')}</td>
+                  <td>{row.unitWeight}</td>
+                  <td className="font-bold">{row.weight.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td>
+                    <span className={`badge ${
+                      row.status === 'IN STOCK' ? 'badge-instock' :
+                      row.status === 'LOW STOCK' ? 'badge-lowstock' : 'badge-ordered'
+                    }`}>
+                      {row.status}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'center', cursor: 'pointer', color: 'var(--text-light)' }}>
+                    &#8942;
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="5" className="text-right font-bold" style={{ backgroundColor: '#f9fafb' }}>TOTAL NET WEIGHT:</td>
+                <td colSpan="3" className="font-bold text-accent" style={{ backgroundColor: '#f9fafb', fontSize: '1.1rem' }}>
+                  {totalLedgerWeight} kg
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      {/* Bottom info section */}
+      <div className="dashboard-bottom-grid">
+        <div className="panel">
+          <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1.25rem' }}>WEIGHT DISTRIBUTION BY DIAMETER</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.25rem' }}>
+                <span>D10</span>
+                <span>34%</span>
+              </div>
+              <div className="progress-bar-container"><div className="progress-bar-fill" style={{ width: '34%' }}></div></div>
+            </div>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.25rem' }}>
+                <span>D19</span>
+                <span>28%</span>
+              </div>
+              <div className="progress-bar-container"><div className="progress-bar-fill" style={{ width: '28%' }}></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel">
+          <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1.25rem' }}>RECENT MOVEMENTS</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', paddingBottom: '0.5rem' }}>
+              <span>Received Stock: D13 rebar (250 pcs)</span>
+              <span style={{ color: 'var(--text-light)' }}>10m ago</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', paddingBottom: '0.5rem' }}>
+              <span>Dispatched: Job #402-B D25 (48 units)</span>
+              <span style={{ color: 'var(--text-light)' }}>1h ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
