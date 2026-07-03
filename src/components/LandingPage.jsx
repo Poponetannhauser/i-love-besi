@@ -3,7 +3,7 @@ export default function LandingPage({ onEnterApp }) {
     <div className="landing-page">
       {/* Landing Header */}
       <header className="landing-header">
-        <div className="brand-logo">REBAROPTIX</div>
+        <div className="brand-logo">ILOVEBESI</div>
         <nav className="landing-nav">
           <a href="#features" className="landing-nav-link">Optimizations</a>
           <a href="#features" className="landing-nav-link">Inventory</a>
@@ -169,7 +169,7 @@ export default function LandingPage({ onEnterApp }) {
           {/* Text section */}
           <div className="middle-text-section">
             <h2>ALAT BANTU UTAMA UNTUK DECISION MAKING YANG LEBIH CEPAT.</h2>
-            <p style={{ color: '#4b5563', fontSize: '1.05rem' }}>Berhenti menebak-nebak di lapangan. RebarOptix memberikan kepastian perhitungan yang dapat dipertanggungjawabkan dalam hitungan detik.</p>
+            <p style={{ color: '#4b5563', fontSize: '1.05rem' }}>Berhenti menebak-nebak di lapangan. ILoveBesi memberikan kepastian perhitungan yang dapat dipertanggungjawabkan dalam hitungan detik.</p>
             <div className="middle-bullets-list">
               <div className="list-item-showcase">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
@@ -214,7 +214,7 @@ export default function LandingPage({ onEnterApp }) {
       <footer className="landing-footer">
         <div className="footer-top-grid">
           <div className="footer-brand-col">
-            <div className="brand-logo">REBAROPTIX</div>
+            <div className="brand-logo">ILOVEBESI</div>
             <p>Pionir teknologi optimasi rebar digital di Indonesia. Membantu industri konstruksi bergerak menuju keberlanjutan melalui efisiensi material yang ekstrem.</p>
           </div>
           <div className="footer-col">
@@ -229,14 +229,14 @@ export default function LandingPage({ onEnterApp }) {
           <div className="footer-col">
             <h4>Kontak</h4>
             <ul className="footer-links">
-              <li><a href="mailto:support@rebaroptix.id">support@rebaroptix.id</a></li>
+              <li><a href="mailto:support@ilovebesi.id">support@ilovebesi.id</a></li>
               <li><a href="tel:+6221500REBAR">+62 (21) 500-REBAR</a></li>
               <li><span style={{ fontSize: '0.9rem', color: '#6b7280' }}>Sudirman Central Business District, Jakarta</span></li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} RebarOptix Technologies. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} ILoveBesi Technologies. All rights reserved.</p>
           <div className="footer-legal-links">
             <a href="#privacy" onClick={onEnterApp}>Privacy Policy</a>
             <a href="#terms" onClick={onEnterApp}>Terms of Service</a>

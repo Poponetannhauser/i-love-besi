@@ -3,13 +3,14 @@ import DashboardView from './components/DashboardView';
 import InputsView from './components/InputsView';
 import InventoryView from './components/InventoryView';
 import CutListsView from './components/CutListsView';
+import ProjectsView from './components/ProjectsView';
 import LandingPage from './components/LandingPage';
 import { calculateRebarWeight } from './utils/formulas';
 import { loadRecapData, saveRecapData, clearRecapData } from './utils/storage';
 
 export default function App() {
   const [recapList, setRecapList] = useState([]);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('projects'); // Start on projects tab to match mock flow
   const [view, setView] = useState('landing'); // 'landing' or 'app'
 
   // Load initial data on mount
@@ -52,6 +53,8 @@ export default function App() {
   // Helper to determine the header title dynamically
   const getHeaderTitle = () => {
     switch (activeTab) {
+      case 'projects':
+        return 'Daftar Proyek';
       case 'dashboard':
         return 'Dashboard Utama';
       case 'inputs':
@@ -65,7 +68,7 @@ export default function App() {
       case 'history':
         return 'Riwayat Proyek';
       default:
-        return 'REBAROPTIX';
+        return 'ILOVEBESI';
     }
   };
 
@@ -77,8 +80,8 @@ export default function App() {
     <div className="app-container">
       {/* Sidebar Navigation */}
       <aside className="sidebar">
-        <div className="brand-logo" onClick={() => setView('landing')} style={{ cursor: 'pointer' }}>
-          REBAROPTIX
+        <div className="brand-logo" onClick={() => setView('landing')} style={{ cursor: 'pointer', color: '#111827' }}>
+          ILOVEBESI
         </div>
         
         <div className="project-context">
@@ -87,6 +90,16 @@ export default function App() {
         </div>
 
         <nav className="nav-menu">
+          <button 
+            className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}
+            onClick={() => setActiveTab('projects')}
+          >
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+            Projects
+          </button>
+
           <button 
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('dashboard')}
@@ -182,6 +195,13 @@ export default function App() {
 
         {/* View Routing */}
         <div className="content-body">
+          {activeTab === 'projects' && (
+            <ProjectsView 
+              items={recapList} 
+              onNavigateToDashboard={() => setActiveTab('dashboard')} 
+            />
+          )}
+
           {activeTab === 'dashboard' && (
             <DashboardView 
               items={recapList} 
@@ -206,7 +226,7 @@ export default function App() {
             <CutListsView items={recapList} />
           )}
 
-          {['optimizations', 'history'].includes(activeTab) && (
+          {['optimizations'].includes(activeTab) && (
             <div className="panel empty-view-panel">
               <h2 style={{ textTransform: 'uppercase', marginBottom: '1rem' }}>{activeTab}</h2>
               <p>Bagian ini sedang dalam pengembangan untuk mendukung data riil lapangan.</p>
