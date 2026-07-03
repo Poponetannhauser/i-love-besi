@@ -6,18 +6,37 @@ import CutListsView from './components/CutListsView';
 import ProjectsView from './components/ProjectsView';
 import LandingPage from './components/LandingPage';
 import { calculateRebarWeight } from './utils/formulas';
-import { loadRecapData, saveRecapData, clearRecapData } from './utils/storage';
+
+const DEFAULT_PROJECTS = [
+  { id: '1', name: 'Project Alpha', location: 'Site 402 - Zone B', status: 'ACTIVE', items: [] },
+  { id: '2', name: 'Terminal 3 Extension', location: 'Jakarta Intl Airport', status: 'ACTIVE', items: [] },
+  { id: '3', name: 'Ciliwung Bridge B', location: 'East Jakarta', status: 'COMPLETED', items: [] }
+];
 
 export default function App() {
-  const [recapList, setRecapList] = useState([]);
-  const [activeTab, setActiveTab] = useState('projects'); // Start on projects tab to match mock flow
+  const [projects, setProjects] = useState([]);
+  const [activeProjectId, setActiveProjectId] = useState('1');
+  const [activeTab, setActiveTab] = useState('projects'); // Start on projects tab
   const [view, setView] = useState('landing'); // 'landing' or 'app'
 
   // Load initial data on mount
   useEffect(() => {
-    const data = loadRecapData();
-    setRecapList(data);
+    try {
+      const data = localStorage.getItem('ilovebesi_multi_projects');
+      if (data) {
+        setProjects(JSON.parse(data));
+      } else {
+        setProjects(DEFAULT_PROJECTS);
+        localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(DEFAULT_PROJECTS));
+      }
+    } catch (e) {
+      console.error('Error loading projects:', e);
+      setProjects(DEFAULT_PROJECTS);
+    }
   }, []);
+
+  const activeProject = projects.find(p => p.id === activeProjectId) || projects[0] || DEFAULT_PROJECTS[0];
+  const recapList = activeProject ? activeProject.items : [];
 
   const handleAddRow = (formData) => {
     const weightKg = calculateRebarWeight(
@@ -34,20 +53,61 @@ export default function App() {
       weightTon,
     };
 
-    const updatedList = [...recapList, newItem];
-    setRecapList(updatedList);
-    saveRecapData(updatedList);
+    const updatedProjects = projects.map(p => {
+      if (p.id === activeProjectId) {
+        return {
+          ...p,
+          items: [...p.items, newItem]
+        };
+      }
+      return p;
+    });
+
+    setProjects(updatedProjects);
+    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(updatedProjects));
   };
 
   const handleDeleteRow = (id) => {
-    const updatedList = recapList.filter((item) => item.id !== id);
-    setRecapList(updatedList);
-    saveRecapData(updatedList);
+    const updatedProjects = projects.map(p => {
+      if (p.id === activeProjectId) {
+        return {
+          ...p,
+          items: p.items.filter(item => item.id !== id)
+        };
+      }
+      return p;
+    });
+    setProjects(updatedProjects);
+    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(updatedProjects));
   };
 
   const handleClearAll = () => {
-    clearRecapData();
-    setRecapList([]);
+    const updatedProjects = projects.map(p => {
+      if (p.id === activeProjectId) {
+        return {
+          ...p,
+          items: []
+        };
+      }
+      return p;
+    });
+    setProjects(updatedProjects);
+    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(updatedProjects));
+  };
+
+  const handleAddProject = (newProj) => {
+    const newProject = {
+      id: Date.now().toString(),
+      ...newProj
+    };
+    const updatedProjects = [...projects, newProject];
+    setProjects(updatedProjects);
+    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(updatedProjects));
+  };
+
+  const handleSelectProject = (id) => {
+    setActiveProjectId(id);
+    setActiveTab('dashboard'); // Navigate to dashboard when project card is clicked
   };
 
   // Helper to determine the header title dynamically
@@ -65,8 +125,6 @@ export default function App() {
         return 'Instruksi Pemotongan Lapangan';
       case 'optimizations':
         return 'Optimasi & Cutting Stock';
-      case 'history':
-        return 'Riwayat Proyek';
       default:
         return 'ILOVEBESI';
     }
@@ -84,10 +142,12 @@ export default function App() {
           ILOVEBESI
         </div>
         
-        <div className="project-context">
-          <div className="project-title">PROJECT ALPHA</div>
-          <div className="project-subtitle">Site 402 - Zone B</div>
-        </div>
+        {activeProject && (
+          <div className="project-context">
+            <div className="project-title" style={{ textTransform: 'uppercase' }}>{activeProject.name}</div>
+            <div className="project-subtitle">{activeProject.location}</div>
+          </div>
+        )}
 
         <nav className="nav-menu">
           <button 
@@ -197,8 +257,9 @@ export default function App() {
         <div className="content-body">
           {activeTab === 'projects' && (
             <ProjectsView 
-              items={recapList} 
-              onNavigateToDashboard={() => setActiveTab('dashboard')} 
+              projects={projects}
+              onSelectProject={handleSelectProject}
+              onAddProject={handleAddProject}
             />
           )}
 
