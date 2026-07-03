@@ -10,16 +10,13 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
   const stats = useMemo(() => {
     const activeProjectsCount = items.length > 0
       ? new Set(items.map(item => item.elementName)).size
-      : '—';
+      : 0;
     const totalWeightTon = items.reduce((acc, item) => acc + item.weightTon, 0);
-    const displayedWeight = totalWeightTon > 0 
-      ? `${totalWeightTon.toFixed(2)} tn` 
-      : '842 tn'; // Default fallback value from mock
+    const displayedWeight = `${totalWeightTon.toFixed(2)} tn`;
 
-    // If items exist, calculate material savings based on our optimization engine
     const materialSavingsVal = items.length > 0
-      ? `${(100 - optData.waste).toFixed(1)}%`
-      : '18.4%';
+      ? `${(optData.efficiency).toFixed(1)}%`
+      : '0.0%';
 
     return {
       activeProjects: activeProjectsCount,
@@ -46,7 +43,7 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
             </svg>
           </div>
           <div className="stat-value">{stats.activeProjects}</div>
-          <div className="stat-desc">4 Critical deadlines this week</div>
+          <div className="stat-desc">Active structural elements</div>
         </div>
 
         <div className="stat-card accent-yellow">
@@ -105,32 +102,11 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
                     </tr>
                   ))
                 ) : (
-                  <>
-                    <tr>
-                      <td>#TX-2024-001</td>
-                      <td>Grade 60 (Deformed)</td>
-                      <td className="text-warning font-bold">2.4%</td>
-                      <td>$4,200</td>
-                    </tr>
-                    <tr>
-                      <td>#NY-SITE-54</td>
-                      <td>Grade 75 (High Strength)</td>
-                      <td className="text-warning font-bold">3.1%</td>
-                      <td>$12,850</td>
-                    </tr>
-                    <tr>
-                      <td>#CA-BRIDGE-9</td>
-                      <td>Epoxy Coated</td>
-                      <td className="text-warning font-bold">1.8%</td>
-                      <td>$8,900</td>
-                    </tr>
-                    <tr>
-                      <td>#FL-PARK-08</td>
-                      <td>Stainless Steel</td>
-                      <td className="text-danger font-bold">5.2%</td>
-                      <td>$1,100</td>
-                    </tr>
-                  </>
+                  <tr>
+                    <td colSpan="4" className="text-center" style={{ color: 'var(--text-light)', padding: '3rem 1rem' }}>
+                      Belum ada data potongan aktif. Silakan isi data di menu Inputs.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -154,16 +130,20 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
             </div>
             <div className="panel-body map-body">
               <div className="map-placeholder">
-                <span className="live-feed-badge">LIVE FEEDS: 4</span>
+                <span className="live-feed-badge">LIVE FEEDS: {items.length > 0 ? 1 : 0}</span>
                 <div className="map-overlay-text">MAP OVERVIEW</div>
               </div>
             </div>
           </div>
 
           <div className="panel alert-panel">
-            <h3>INVENTORY ALERT</h3>
-            <p>#11 Rebar stock is below 15% at Site 402. Optimization suggests batching order with Zone C.</p>
-            <button className="btn btn-dark full-width">REORDER NOW</button>
+            <h3>INVENTORY STATUS</h3>
+            <p>
+              {items.length > 0 
+                ? 'Semua tingkat persediaan berada pada batas aman operasional proyek.' 
+                : 'Belum ada data stok rebar. Lakukan kalkulasi pada menu Inputs.'}
+            </p>
+            {items.length === 0 && <button className="btn btn-dark full-width" onClick={onNavigateToCalculator}>MULAI SEKARANG</button>}
           </div>
         </div>
       </div>
@@ -190,7 +170,7 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
               <span className="bar-label">WEEK 15</span>
             </div>
             <div className="bar-wrapper current">
-              <div className="bar accent-yellow-bar" style={{ height: items.length > 0 ? `${optData.efficiency}%` : '90%' }}></div>
+              <div className="bar accent-yellow-bar" style={{ height: items.length > 0 ? `${optData.efficiency}%` : '0%' }}></div>
               <span className="bar-label">CURRENT</span>
             </div>
           </div>
@@ -202,18 +182,18 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
             {items.length > 0 ? (
               <strong>BBS Optimization: Efficiency {optData.efficiency}%</strong>
             ) : (
-              <strong>Cut List #442: Efficiency 98.2%</strong>
+              <strong>Tidak ada data optimasi pemotongan.</strong>
             )}
           </div>
           <div className="progress-bar-container">
             <div 
               className="progress-bar-fill" 
-              style={{ width: items.length > 0 ? `${optData.efficiency}%` : '98.2%' }}
+              style={{ width: items.length > 0 ? `${optData.efficiency}%` : '0%' }}
             ></div>
           </div>
           <div className="progress-labels">
-            <span>USED: {items.length > 0 ? `${optData.efficiency}%` : '98.2%'}</span>
-            <span>OFF-CUT: {items.length > 0 ? `${optData.waste}%` : '1.8%'}</span>
+            <span>USED: {items.length > 0 ? `${optData.efficiency}%` : '0.0%'}</span>
+            <span>OFF-CUT: {items.length > 0 ? `${optData.waste}%` : '0.0%'}</span>
           </div>
         </div>
       </div>

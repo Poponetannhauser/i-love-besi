@@ -1,16 +1,6 @@
 import { useMemo } from 'react';
 import { optimizeCuttingStock } from '../utils/optimizations';
 
-// Mock/Default ledger rows when items is empty
-const DEFAULT_LEDGER_ROWS = [
-  { dia: 'D10', grade: 'BJTS 420B', length: 12.00, qty: 4200, unitWeight: 0.617, weight: 31096.80, status: 'IN STOCK' },
-  { dia: 'D13', grade: 'BJTS 420B', length: 12.00, qty: 2850, unitWeight: 1.042, weight: 35636.40, status: 'IN STOCK' },
-  { dia: 'D16', grade: 'BJTS 420B', length: 12.00, qty: 1120, unitWeight: 1.578, weight: 21208.32, status: 'LOW STOCK' },
-  { dia: 'D19', grade: 'BJTS 420B', length: 12.00, qty: 5400, unitWeight: 2.226, weight: 144244.80, status: 'IN STOCK' },
-  { dia: 'D22', grade: 'BJTS 420B', length: 12.00, qty: 3200, unitWeight: 2.984, weight: 114585.60, status: 'IN STOCK' },
-  { dia: 'D25', grade: 'BJTS 420B', length: 12.00, qty: 1650, unitWeight: 3.853, weight: 76289.40, status: 'ORDERED' }
-];
-
 export default function InventoryView({ items }) {
   // Dynamic aggregations
   const stats = useMemo(() => {
@@ -18,23 +8,22 @@ export default function InventoryView({ items }) {
     const totalTonVal = totalKg / 1000;
     
     const optData = optimizeCuttingStock(items);
-
     const activeCutListsCount = new Set(items.map(item => item.elementName)).size;
 
     return {
-      totalWeightTon: items.length > 0 ? totalTonVal.toFixed(2) : '412.50',
-      stockStatus: items.length > 0 ? 'Nominal: OK' : 'Critical: D16',
-      stockStatusSub: items.length > 0 ? 'All levels stable' : '48h until stockout',
-      optRate: items.length > 0 ? `${optData.efficiency}%` : '94.2%',
-      optRateSub: items.length > 0 ? `Waste: ${optData.waste}%` : 'Waste: 24.1 MT',
-      activeCutLists: items.length > 0 ? activeCutListsCount : 12
+      totalWeightTon: items.length > 0 ? totalTonVal.toFixed(2) : '0.00',
+      stockStatus: items.length > 0 ? 'Nominal: OK' : '—',
+      stockStatusSub: items.length > 0 ? 'All levels stable' : 'No rebar stock recorded',
+      optRate: items.length > 0 ? `${optData.efficiency}%` : '0.0%',
+      optRateSub: items.length > 0 ? `Waste: ${optData.waste}%` : 'Waste: 0.0%',
+      activeCutLists: items.length > 0 ? activeCutListsCount : 0
     };
   }, [items]);
 
   // Master Ledger grouping
   const ledgerRows = useMemo(() => {
     if (!items || items.length === 0) {
-      return DEFAULT_LEDGER_ROWS;
+      return [];
     }
 
     // Group items by diameter
@@ -56,7 +45,6 @@ export default function InventoryView({ items }) {
     });
 
     return Object.values(grouped).map(row => {
-      // Determine simulated status based on quantity
       let status = 'IN STOCK';
       if (row.qty < 50) status = 'LOW STOCK';
       else if (row.qty > 500) status = 'ORDERED';
@@ -85,17 +73,15 @@ export default function InventoryView({ items }) {
           </div>
           <div className="stat-value">{stats.totalWeightTon}</div>
           <div className="stat-desc" style={{ color: '#10b981', fontWeight: '800' }}>
-            +12% &uarr; <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>vs last month</span>
+            {items.length > 0 ? '+12% ↑' : '0%'} <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>vs last month</span>
           </div>
         </div>
 
-        <div className="stat-card" style={{ borderLeft: stats.stockStatus.includes('Critical') ? '4px solid var(--danger)' : '1px solid #e5e7eb' }}>
+        <div className="stat-card">
           <div className="stat-card-header">
             <span>STOCK STATUS</span>
           </div>
-          <div className="stat-value" style={{ color: stats.stockStatus.includes('Critical') ? 'var(--danger)' : 'var(--text-dark)' }}>
-            {stats.stockStatus}
-          </div>
+          <div className="stat-value">{stats.stockStatus}</div>
           <div className="stat-desc">{stats.stockStatusSub}</div>
         </div>
 
@@ -112,7 +98,7 @@ export default function InventoryView({ items }) {
             <span>ACTIVE CUT LISTS</span>
           </div>
           <div className="stat-value">{stats.activeCutLists}</div>
-          <div className="stat-desc">Next delivery: Today 14:00</div>
+          <div className="stat-desc">Next delivery: —</div>
         </div>
       </div>
 
@@ -141,36 +127,46 @@ export default function InventoryView({ items }) {
               </tr>
             </thead>
             <tbody>
-              {ledgerRows.map((row, idx) => (
-                <tr key={idx}>
-                  <td className="font-bold">{row.dia}</td>
-                  <td>{row.grade}</td>
-                  <td>{row.length.toFixed(2)}</td>
-                  <td>{row.qty.toLocaleString('id-ID')}</td>
-                  <td>{row.unitWeight}</td>
-                  <td className="font-bold">{row.weight.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  <td>
-                    <span className={`badge ${
-                      row.status === 'IN STOCK' ? 'badge-instock' :
-                      row.status === 'LOW STOCK' ? 'badge-lowstock' : 'badge-ordered'
-                    }`}>
-                      {row.status}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: 'center', cursor: 'pointer', color: 'var(--text-light)' }}>
-                    &#8942;
+              {ledgerRows.length > 0 ? (
+                ledgerRows.map((row, idx) => (
+                  <tr key={idx}>
+                    <td className="font-bold">{row.dia}</td>
+                    <td>{row.grade}</td>
+                    <td>{row.length.toFixed(2)}</td>
+                    <td>{row.qty.toLocaleString('id-ID')}</td>
+                    <td>{row.unitWeight}</td>
+                    <td className="font-bold">{row.weight.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>
+                      <span className={`badge ${
+                        row.status === 'IN STOCK' ? 'badge-instock' :
+                        row.status === 'LOW STOCK' ? 'badge-lowstock' : 'badge-ordered'
+                      }`}>
+                        {row.status}
+                      </span>
+                    </td>
+                    <td style={{ textAlign: 'center', cursor: 'pointer', color: 'var(--text-light)' }}>
+                      &#8942;
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center" style={{ color: 'var(--text-light)', padding: '3rem 1rem' }}>
+                    Belum ada data ledger. Silakan tambahkan data potongan di menu Inputs terlebih dahulu.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan="5" className="text-right font-bold" style={{ backgroundColor: '#f9fafb' }}>TOTAL NET WEIGHT:</td>
-                <td colSpan="3" className="font-bold text-accent" style={{ backgroundColor: '#f9fafb', fontSize: '1.1rem' }}>
-                  {totalLedgerWeight} kg
-                </td>
-              </tr>
-            </tfoot>
+            {ledgerRows.length > 0 && (
+              <tfoot>
+                <tr>
+                  <td colSpan="5" className="text-right font-bold" style={{ backgroundColor: '#f9fafb' }}>TOTAL NET WEIGHT:</td>
+                  <td colSpan="3" className="font-bold text-accent" style={{ backgroundColor: '#f9fafb', fontSize: '1.1rem' }}>
+                    {totalLedgerWeight} kg
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
@@ -180,34 +176,43 @@ export default function InventoryView({ items }) {
         <div className="panel">
           <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1.25rem' }}>WEIGHT DISTRIBUTION BY DIAMETER</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.25rem' }}>
-                <span>D10</span>
-                <span>34%</span>
-              </div>
-              <div className="progress-bar-container"><div className="progress-bar-fill" style={{ width: '34%' }}></div></div>
-            </div>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.25rem' }}>
-                <span>D19</span>
-                <span>28%</span>
-              </div>
-              <div className="progress-bar-container"><div className="progress-bar-fill" style={{ width: '28%' }}></div></div>
-            </div>
+            {items.length > 0 ? (
+              Object.keys(items.reduce((acc, item) => {
+                acc[item.diameter] = (acc[item.diameter] || 0) + item.weightKg;
+                return acc;
+              }, {})).map(dia => {
+                const weight = items.filter(i => i.diameter === Number(dia)).reduce((sum, i) => sum + i.weightKg, 0);
+                const totalWeight = items.reduce((sum, i) => sum + i.weightKg, 0);
+                const pct = ((weight / totalWeight) * 100).toFixed(0);
+                return (
+                  <div key={dia}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', marginBottom: '0.25rem' }}>
+                      <span>D{dia}</span>
+                      <span>{pct}%</span>
+                    </div>
+                    <div className="progress-bar-container"><div className="progress-bar-fill" style={{ width: `${pct}%` }}></div></div>
+                  </div>
+                );
+              })
+            ) : (
+              <p style={{ color: 'var(--text-light)', fontSize: '0.9rem' }}>Belum ada distribusi diameter.</p>
+            )}
           </div>
         </div>
 
         <div className="panel">
           <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1.25rem' }}>RECENT MOVEMENTS</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', paddingBottom: '0.5rem' }}>
-              <span>Received Stock: D13 rebar (250 pcs)</span>
-              <span style={{ color: 'var(--text-light)' }}>10m ago</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', paddingBottom: '0.5rem' }}>
-              <span>Dispatched: Job #402-B D25 (48 units)</span>
-              <span style={{ color: 'var(--text-light)' }}>1h ago</span>
-            </div>
+            {items.length > 0 ? (
+              items.slice(-2).map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', paddingBottom: '0.5rem' }}>
+                  <span>Dispatched: {item.elementName} D{item.diameter} ({item.quantity} pcs)</span>
+                  <span style={{ color: 'var(--text-light)' }}>Baru saja</span>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: 'var(--text-light)', fontSize: '0.9rem' }}>Belum ada log pergerakan stok.</p>
+            )}
           </div>
         </div>
       </div>
