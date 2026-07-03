@@ -8,8 +8,8 @@ export default function CalculatorForm({ onSubmit }) {
   const [diameterType, setDiameterType] = useState('standard'); // 'standard' or 'custom'
   const [selectedDiameter, setSelectedDiameter] = useState(10);
   const [customDiameter, setCustomDiameter] = useState('');
-  const [length, setLength] = useState(12);
-  const [quantity, setQuantity] = useState(1);
+  const [length, setLength] = useState('12');
+  const [quantity, setQuantity] = useState('1');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
@@ -34,8 +34,14 @@ export default function CalculatorForm({ onSubmit }) {
       return;
     }
 
-    const N = Number(quantity);
-    if (!N || N <= 0 || !Number.isInteger(N)) {
+    // Cek string-level dulu: '2.0' atau '2.5' bukan bilangan bulat murni
+    const quantityStr = String(quantity).trim();
+    if (quantityStr.includes('.') || quantityStr.includes(',')) {
+      setError('Jumlah batang harus berupa bilangan bulat positif (bukan desimal).');
+      return;
+    }
+    const N = Number(quantityStr);
+    if (!Number.isInteger(N) || N <= 0) {
       setError('Jumlah batang harus berupa bilangan bulat positif.');
       return;
     }

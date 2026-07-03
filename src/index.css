@@ -181,6 +181,10 @@ body {
   align-items: center;
 }
 
+.panel-body {
+  padding-top: 0.75rem;
+}
+
 /* Dashboard View Details */
 .dashboard-view {
   display: flex;
@@ -455,6 +459,27 @@ body {
   font-weight: 800;
   margin-top: 0.5rem;
   text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-semibold {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-accent {
+  color: #065f46; /* Emerald-900 — readable on white bg (Neo-Brutalist) */
+  font-weight: 800;
 }
 
 .opt-meta {

@@ -3,11 +3,13 @@ import { useMemo } from 'react';
 export default function DashboardView({ items, onNavigateToCalculator }) {
   // Dynamic stats based on recapList items
   const stats = useMemo(() => {
-    const activeProjectsCount = new Set(items.map(item => item.elementName)).size || 12;
+    const activeProjectsCount = items.length > 0
+      ? new Set(items.map(item => item.elementName)).size
+      : '—'; // Tampilkan dash jika belum ada data nyata
     const totalWeightTon = items.reduce((acc, item) => acc + item.weightTon, 0);
-    const displayedWeight = totalWeightTon > 0 
-      ? `${totalWeightTon.toFixed(2)} tn` 
-      : '842 tn'; // Default fallback value from mock
+    const displayedWeight = totalWeightTon > 0
+      ? `${totalWeightTon.toFixed(2)} tn`
+      : '842 tn'; // Demo fallback
 
     return {
       activeProjects: activeProjectsCount,
