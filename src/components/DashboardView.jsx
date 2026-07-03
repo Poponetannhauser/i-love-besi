@@ -154,19 +154,19 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
           <h3>WASTE SAVINGS TREND</h3>
           <div className="chart-container">
             <div className="bar-wrapper">
-              <div className="bar" style={{ height: '30%' }}></div>
+              <div className="bar" style={{ height: items.length > 0 ? '30%' : '0%' }}></div>
               <span className="bar-label">WEEK 12</span>
             </div>
             <div className="bar-wrapper">
-              <div className="bar" style={{ height: '55%' }}></div>
+              <div className="bar" style={{ height: items.length > 0 ? '55%' : '0%' }}></div>
               <span className="bar-label">WEEK 13</span>
             </div>
             <div className="bar-wrapper">
-              <div className="bar" style={{ height: '45%' }}></div>
+              <div className="bar" style={{ height: items.length > 0 ? '45%' : '0%' }}></div>
               <span className="bar-label">WEEK 14</span>
             </div>
             <div className="bar-wrapper">
-              <div className="bar" style={{ height: '80%' }}></div>
+              <div className="bar" style={{ height: items.length > 0 ? '80%' : '0%' }}></div>
               <span className="bar-label">WEEK 15</span>
             </div>
             <div className="bar-wrapper current">
