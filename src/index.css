@@ -771,8 +771,14 @@ body {
 /* Stats Cards Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
+}
+
+@media (min-width: 600px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .stat-card {
@@ -837,7 +843,7 @@ body {
   gap: 2rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .dashboard-mid-grid {
     grid-template-columns: 1fr 340px;
   }
@@ -980,7 +986,7 @@ body {
   gap: 2rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .dashboard-bottom-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -1931,7 +1937,7 @@ select:focus {
   animation: fadeIn 0.2s ease-out;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .app-container {
     flex-direction: column;
     height: 100vh;

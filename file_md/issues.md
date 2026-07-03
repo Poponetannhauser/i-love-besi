@@ -1,6 +1,1 @@
-Tampilan masih belum responsive
-Sidebar tidak bisa di tutup
-
-ProjectsView:
-
-Hapus proyek masih pakai popup bawaan
+Halaman dashboard di ipad masih agak aneh responsive nya, gak simetris
