@@ -2,18 +2,13 @@ import { useMemo } from 'react';
 import { optimizeCuttingStock } from '../utils/optimizations';
 
 export default function CutListsView({ items }) {
-  // Return empty state if there are no items
-  if (!items || items.length === 0) {
-    return (
-      <div className="panel empty-view-panel">
-        <h2 style={{ textTransform: 'uppercase', marginBottom: '1rem' }}>Instruksi Pemotongan Lapangan</h2>
-        <p>Belum ada instruksi pemotongan yang dapat dirender. Silakan tambahkan data potongan di menu Inputs terlebih dahulu.</p>
-      </div>
-    );
-  }
-
-  // Group and FFD pack to get visual patterns
+  // Build visual patterns for the Cut List view (grouped FFD)
+  // NOTE: All hooks must be declared BEFORE any conditional early returns (Rules of Hooks)
   const optData = useMemo(() => {
+    if (!items || items.length === 0) {
+      return { barsNeeded: 0, efficiency: 0, patterns: [] };
+    }
+
     const STOCK_LIMIT = 12.0;
     const groups = {};
     items.forEach(item => {
@@ -25,8 +20,8 @@ export default function CutListsView({ items }) {
     const patterns = [];
     let barsNeededCount = 0;
 
-    Object.keys(groups).forEach(key => {
-      const groupItems = groups[key];
+    Object.keys(groups).forEach(groupKey => {
+      const groupItems = groups[groupKey];
       const pieces = [];
       groupItems.forEach(item => {
         for (let i = 0; i < item.quantity; i++) {
@@ -62,14 +57,11 @@ export default function CutListsView({ items }) {
 
       const patternSummary = {};
       bins.forEach(bin => {
-        const key = bin.map(p => p.length).join(',');
-        if (!patternSummary[key]) {
-          patternSummary[key] = {
-            pieces: bin,
-            count: 0
-          };
+        const binKey = bin.map(p => p.length).join(',');
+        if (!patternSummary[binKey]) {
+          patternSummary[binKey] = { pieces: bin, count: 0 };
         }
-        patternSummary[key].count++;
+        patternSummary[binKey].count++;
       });
 
       Object.keys(patternSummary).forEach(patternKey => {
@@ -83,18 +75,18 @@ export default function CutListsView({ items }) {
       });
     });
 
-    const totalCutLength = items.reduce((sum, item) => sum + (Number(item.length) * item.quantity), 0);
-    const totalPurchased = barsNeededCount * STOCK_LIMIT;
-    const efficiency = totalPurchased > 0 ? (totalCutLength / totalPurchased) * 100 : 0;
-
+    const globalOpt = optimizeCuttingStock(items);
     return {
       barsNeeded: barsNeededCount,
-      efficiency: Number(efficiency.toFixed(1)),
+      efficiency: globalOpt.efficiency,
       patterns
     };
   }, [items]);
 
   const stats = useMemo(() => {
+    if (!items || items.length === 0) {
+      return { totalRebars: '0 Units', yieldVal: '0.0%', steelGrade: '—', diameter: '—' };
+    }
     const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
     const diameters = Array.from(new Set(items.map(item => `D${item.diameter}`))).join(', ');
 
@@ -105,6 +97,16 @@ export default function CutListsView({ items }) {
       diameter: diameters
     };
   }, [items, optData]);
+
+  // Empty state guard (placed AFTER all hooks to comply with React Rules of Hooks)
+  if (!items || items.length === 0) {
+    return (
+      <div className="panel empty-view-panel">
+        <h2 style={{ textTransform: 'uppercase', marginBottom: '1rem' }}>Instruksi Pemotongan Lapangan</h2>
+        <p>Belum ada instruksi pemotongan yang dapat dirender. Silakan tambahkan data potongan di menu Inputs terlebih dahulu.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="cut-lists-view">

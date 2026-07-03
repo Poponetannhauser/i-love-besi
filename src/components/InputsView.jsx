@@ -243,7 +243,15 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
       steelType,
       diameter: Number(diameter),
       length: cutLen,
-      quantity: totalQty
+      quantity: totalQty,
+      baseLength: cutLen,
+      overlapLength: 0,
+      hasOverlap: false,
+      overlapFactor: 0,
+      diameterAktual: Number(diameter),
+      isTolerance: false,
+      toleranceType: '0',
+      customDiameterAktual: ''
     });
 
     // Reset fields
@@ -552,7 +560,7 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
               </div>
 
               {liveDirectPreview && (
-                <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 1', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                   {hasOverlap && (
                     <div className="preview-main-text" style={{ fontSize: '0.85rem' }}>
                       Overlap: <strong>+{liveDirectPreview.overlapLength} m</strong> per batang (Total: {liveDirectPreview.finalLength} m)

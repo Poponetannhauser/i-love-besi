@@ -20,20 +20,19 @@ export default function InventoryView({ items }) {
     };
   }, [items]);
 
-  // Master Ledger grouping
+  // Master Ledger grouping (by diameter + steelType)
   const ledgerRows = useMemo(() => {
     if (!items || items.length === 0) {
       return [];
     }
 
-    // Group items by diameter
     const grouped = {};
     items.forEach(item => {
-      const diaKey = `D${item.diameter}`;
+      const diaKey = `${item.diameter}-${item.steelType}`;
       if (!grouped[diaKey]) {
         grouped[diaKey] = {
-          dia: diaKey,
-          grade: 'BJTS 420B',
+          dia: `D${item.diameter}`,
+          grade: item.steelType === 'BjTP' ? 'BjTP 280 (Polos)' : 'BjTS 420 (Ulir)',
           length: 12.00,
           qty: 0,
           unitWeight: 0.006165 * Math.pow(item.diameter, 2),
@@ -46,19 +45,13 @@ export default function InventoryView({ items }) {
       grouped[diaKey].weightNominal += (item.weightNominalKg || item.weightKg);
     });
 
-    return Object.values(grouped).map(row => {
-      let status = 'IN STOCK';
-      if (row.qty < 50) status = 'LOW STOCK';
-      else if (row.qty > 500) status = 'ORDERED';
-
-      return {
-        ...row,
-        unitWeight: Number(row.unitWeight.toFixed(3)),
-        weight: Number(row.weight.toFixed(2)),
-        weightNominal: Number(row.weightNominal.toFixed(2)),
-        status
-      };
-    });
+    return Object.values(grouped).map(row => ({
+      ...row,
+      unitWeight: Number(row.unitWeight.toFixed(3)),
+      weight: Number(row.weight.toFixed(2)),
+      weightNominal: Number(row.weightNominal.toFixed(2)),
+      status: 'RECORDED'
+    }));
   }, [items]);
 
   const totalLedgerWeight = useMemo(() => {
@@ -147,6 +140,7 @@ export default function InventoryView({ items }) {
                     <td className="font-bold">{row.weight.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</td>
                     <td>
                       <span className={`badge ${
+                        row.status === 'RECORDED' ? 'badge-instock' :
                         row.status === 'IN STOCK' ? 'badge-instock' :
                         row.status === 'LOW STOCK' ? 'badge-lowstock' : 'badge-ordered'
                       }`}>
