@@ -1,0 +1,203 @@
+import { useMemo } from 'react';
+
+export default function DashboardView({ items, onNavigateToCalculator }) {
+  // Dynamic stats based on recapList items
+  const stats = useMemo(() => {
+    const activeProjectsCount = new Set(items.map(item => item.elementName)).size || 12;
+    const totalWeightTon = items.reduce((acc, item) => acc + item.weightTon, 0);
+    const displayedWeight = totalWeightTon > 0 
+      ? `${totalWeightTon.toFixed(2)} tn` 
+      : '842 tn'; // Default fallback value from mock
+
+    return {
+      activeProjects: activeProjectsCount,
+      totalOptimized: displayedWeight,
+      materialSavings: '18.4%'
+    };
+  }, [items]);
+
+  return (
+    <div className="dashboard-view">
+      <div className="dashboard-header">
+        <span className="subtitle">OPERATIONAL OVERVIEW</span>
+        <h2 className="title">DASHBOARD UTAMA</h2>
+      </div>
+
+      {/* Stats Cards Row */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-card-header">
+            <span>ACTIVE PROJECTS</span>
+            <svg className="stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div className="stat-value">{stats.activeProjects}</div>
+          <div className="stat-desc">4 Critical deadlines this week</div>
+        </div>
+
+        <div className="stat-card accent-yellow">
+          <div className="stat-card-header">
+            <span>TOTAL OPTIMIZED</span>
+            <svg className="stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div className="stat-value">{stats.totalOptimized}</div>
+          <div className="stat-desc">Aggregate across all sites</div>
+        </div>
+
+        <div className="stat-card accent-blue">
+          <div className="stat-card-header">
+            <span>MATERIAL SAVINGS</span>
+            <svg className="stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+            </svg>
+          </div>
+          <div className="stat-value">{stats.materialSavings}</div>
+          <div className="stat-desc">Average waste reduction</div>
+        </div>
+      </div>
+
+      {/* Middle Grid */}
+      <div className="dashboard-mid-grid">
+        {/* Recent Performance Table */}
+        <div className="panel recent-performance">
+          <div className="panel-header">
+            <h3>RECENT CUT LIST PERFORMANCE</h3>
+            <button className="panel-icon-btn">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+            </button>
+          </div>
+          <div className="panel-body">
+            <table className="flat-table">
+              <thead>
+                <tr>
+                  <th>PROJECT / ELEMENT</th>
+                  <th>STEEL GRADE</th>
+                  <th>WASTE %</th>
+                  <th>SAVINGS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.length > 0 ? (
+                  items.slice(-4).map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.elementName}</td>
+                      <td>{item.steelType === 'BjTP' ? 'Grade 280 (Plain)' : 'Grade 420 (Deformed)'} ({item.diameter}mm)</td>
+                      <td className="text-warning font-bold">2.4%</td>
+                      <td>Rp {(item.weightKg * 1200).toLocaleString('id-ID')}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <>
+                    <tr>
+                      <td>#TX-2024-001</td>
+                      <td>Grade 60 (Deformed)</td>
+                      <td className="text-warning font-bold">2.4%</td>
+                      <td>$4,200</td>
+                    </tr>
+                    <tr>
+                      <td>#NY-SITE-54</td>
+                      <td>Grade 75 (High Strength)</td>
+                      <td className="text-warning font-bold">3.1%</td>
+                      <td>$12,850</td>
+                    </tr>
+                    <tr>
+                      <td>#CA-BRIDGE-9</td>
+                      <td>Epoxy Coated</td>
+                      <td className="text-warning font-bold">1.8%</td>
+                      <td>$8,900</td>
+                    </tr>
+                    <tr>
+                      <td>#FL-PARK-08</td>
+                      <td>Stainless Steel</td>
+                      <td className="text-danger font-bold">5.2%</td>
+                      <td>$1,100</td>
+                    </tr>
+                  </>
+                )}
+              </tbody>
+            </table>
+            <button className="btn-flat-action" onClick={onNavigateToCalculator}>
+              VIEW ALL ACTIVE LOGS
+            </button>
+          </div>
+        </div>
+
+        {/* Right Columns: Map & Alert */}
+        <div className="right-panel-column">
+          <div className="panel map-panel">
+            <div className="panel-header">
+              <div className="flex-align">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" style={{ marginRight: '6px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <h3>ACTIVE LOGISTICS MAP</h3>
+              </div>
+            </div>
+            <div className="panel-body map-body">
+              <div className="map-placeholder">
+                <span className="live-feed-badge">LIVE FEEDS: 4</span>
+                <div className="map-overlay-text">MAP OVERVIEW</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="panel alert-panel">
+            <h3>INVENTORY ALERT</h3>
+            <p>#11 Rebar stock is below 15% at Site 402. Optimization suggests batching order with Zone C.</p>
+            <button className="btn btn-dark full-width">REORDER NOW</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Grid */}
+      <div className="dashboard-bottom-grid">
+        <div className="panel chart-panel">
+          <h3>WASTE SAVINGS TREND</h3>
+          <div className="chart-container">
+            <div className="bar-wrapper">
+              <div className="bar" style={{ height: '30%' }}></div>
+              <span className="bar-label">WEEK 12</span>
+            </div>
+            <div className="bar-wrapper">
+              <div className="bar" style={{ height: '55%' }}></div>
+              <span className="bar-label">WEEK 13</span>
+            </div>
+            <div className="bar-wrapper">
+              <div className="bar" style={{ height: '45%' }}></div>
+              <span className="bar-label">WEEK 14</span>
+            </div>
+            <div className="bar-wrapper">
+              <div className="bar" style={{ height: '80%' }}></div>
+              <span className="bar-label">WEEK 15</span>
+            </div>
+            <div className="bar-wrapper current">
+              <div className="bar accent-yellow-bar" style={{ height: '90%' }}></div>
+              <span className="bar-label">CURRENT</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel opt-result-panel">
+          <h3>RECENT OPTIMIZATION RESULT</h3>
+          <div className="opt-meta">
+            <strong>Cut List #442: Efficiency 98.2%</strong>
+          </div>
+          <div className="progress-bar-container">
+            <div className="progress-bar-fill" style={{ width: '98.2%' }}></div>
+          </div>
+          <div className="progress-labels">
+            <span>USED: 98.2%</span>
+            <span>OFF-CUT: 1.8%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
