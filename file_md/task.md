@@ -21,11 +21,11 @@ Konteks: jangan lompat ke styling/animasi di tahap ini. Tujuan task 0 cuma "kera
 
 ## 1. F1.1 — Kalkulator Berat Jenis Standar
 
-- [ ] 1.1 Buat form input: Diameter (angka), Panjang Batang (angka, default 12), Jumlah Batang (angka)
-- [ ] 1.2 Implementasi rumus: `W = 0.006165 * d^2 * L * N`
-- [ ] 1.3 Tampilkan output: Berat Total dalam Kg, dan konversi ke Ton (Kg / 1000)
-- [ ] 1.4 Tombol "Hitung" memicu kalkulasi dan menampilkan hasil di layar (belum masuk tabel dulu, itu task 3)
-- [ ] 1.5 Test manual: cocokkan hasil dengan hitungan Excel/kalkulator biasa untuk minimal 3 kombinasi angka berbeda (ini yang jadi metrik akurasi 0% di PRD bagian 7)
+- [x] 1.1 Buat form input: Diameter (angka), Panjang Batang (angka, default 12), Jumlah Batang (angka)
+- [x] 1.2 Implementasi rumus: `W = 0.006165 * d^2 * L * N`
+- [x] 1.3 Tampilkan output: Berat Total dalam Kg, dan konversi ke Ton (Kg / 1000)
+- [x] 1.4 Tombol "Hitung" memicu kalkulasi dan menampilkan hasil di layar (belum masuk tabel dulu, itu task 3)
+- [x] 1.5 Test manual: cocokkan hasil dengan hitungan Excel/kalkulator biasa untuk minimal 3 kombinasi angka berbeda (ini yang jadi metrik akurasi 0% di PRD bagian 7)
 
 Konteks: ini inti aplikasi. Kalau task 1 belum akurat 100%, jangan lanjut ke task berikutnya.
 
@@ -33,9 +33,9 @@ Konteks: ini inti aplikasi. Kalau task 1 belum akurat 100%, jangan lanjut ke tas
 
 ## 2. F1.2 — Pemilihan Tipe Besi
 
-- [ ] 2.1 Tambah dropdown Tipe Besi: "Besi Polos (BjTP)" dan "Besi Sirip/Ulir (BjTS)"
-- [ ] 2.2 Tambah dropdown/select Diameter dengan opsi standar: 6, 8, 10, 12, 13, 16, 19, 22, 25 mm (plus opsi input manual kalau ukurannya di luar daftar)
-- [ ] 2.3 Pastikan pilihan tipe besi tersimpan sebagai metadata di baris tabel nanti (belum memengaruhi rumus, sesuai catatan PRD F1.2)
+- [x] 2.1 Tambah dropdown Tipe Besi: "Besi Polos (BjTP)" dan "Besi Sirip/Ulir (BjTS)"
+- [x] 2.2 Tambah dropdown/select Diameter dengan opsi standar: 6, 8, 10, 12, 13, 16, 19, 22, 25 mm (plus opsi input manual kalau ukurannya di luar daftar)
+- [x] 2.3 Pastikan pilihan tipe besi tersimpan sebagai metadata di baris tabel nanti (belum memengaruhi rumus, sesuai catatan PRD F1.2)
 
 Konteks: task ini murni UI/data tambahan, tidak ada logika hitung baru.
 
@@ -43,11 +43,11 @@ Konteks: task ini murni UI/data tambahan, tidak ada logika hitung baru.
 
 ## 3. F1.3 — Tabel Rekapitulasi
 
-- [ ] 3.1 Tambah input "Keterangan/Nama Elemen" (contoh: K1, B1) di form
-- [ ] 3.2 Saat tombol "Hitung" ditekan, hasil kalkulasi (bukan cuma ditampilkan) juga ditambahkan sebagai baris baru ke tabel
-- [ ] 3.3 Kolom tabel minimal: Keterangan, Tipe Besi, Diameter, Panjang, Jumlah Batang, Berat (Kg)
-- [ ] 3.4 Hitung dan tampilkan total berat kumulatif dari seluruh baris di bagian bawah tabel
-- [ ] 3.5 Tambah tombol hapus per baris (kecil tapi penting, supaya user bisa koreksi kalau salah input)
+- [x] 3.1 Tambah input "Keterangan/Nama Elemen" (contoh: K1, B1) di form
+- [x] 3.2 Saat tombol "Hitung" ditekan, hasil kalkulasi (bukan cuma ditampilkan) juga ditambahkan sebagai baris baru ke tabel
+- [x] 3.3 Kolom tabel minimal: Keterangan, Tipe Besi, Diameter, Panjang, Jumlah Batang, Berat (Kg)
+- [x] 3.4 Hitung dan tampilkan total berat kumulatif dari seluruh baris di bagian bawah tabel
+- [x] 3.5 Tambah tombol hapus per baris (kecil tapi penting, supaya user bisa koreksi kalau salah input)
 
 Konteks: ekspor CSV sengaja tidak masuk sini, sudah diputuskan ditunda di luar MVP. Jangan tergoda menambahkannya sekarang.
 
@@ -55,11 +55,11 @@ Konteks: ekspor CSV sengaja tidak masuk sini, sudah diputuskan ditunda di luar M
 
 ## 4. F1.4 — Validasi Input
 
-- [ ] 4.1 Validasi: diameter harus > 0
-- [ ] 4.2 Validasi: panjang batang harus > 0
-- [ ] 4.3 Validasi: jumlah batang harus bilangan bulat positif (bukan 0, bukan desimal, bukan negatif)
-- [ ] 4.4 Kalau input tidak valid, tombol "Hitung" tidak menjalankan kalkulasi dan menampilkan pesan error yang jelas (bukan cuma diam atau NaN muncul di layar)
-- [ ] 4.5 Test manual: coba input 0, negatif, huruf, kosong — pastikan semua tertangkap validasi
+- [x] 4.1 Validasi: diameter harus > 0
+- [x] 4.2 Validasi: panjang batang harus > 0
+- [x] 4.3 Validasi: jumlah batang harus bilangan bulat positif (bukan 0, bukan desimal, bukan negatif)
+- [x] 4.4 Kalau input tidak valid, tombol "Hitung" tidak menjalankan kalkulasi dan menampilkan pesan error yang jelas (bukan cuma diam atau NaN muncul di layar)
+- [x] 4.5 Test manual: coba input 0, negatif, huruf, kosong — pastikan semua tertangkap validasi
 
 Konteks: ini yang paling sering dilewatkan orang saat buru-buru bikin MVP. Jangan skip, ini yang membedakan "kalkulator jalan" dengan "kalkulator jalan tapi gampang jebol".
 
@@ -67,10 +67,10 @@ Konteks: ini yang paling sering dilewatkan orang saat buru-buru bikin MVP. Janga
 
 ## 5. F1.5 — Penyimpanan Data Lokal
 
-- [ ] 5.1 Setiap kali baris baru ditambahkan ke tabel, simpan seluruh data tabel ke local storage
-- [ ] 5.2 Saat aplikasi dibuka ulang, load data dari local storage dan tampilkan kembali di tabel (bukan mulai dari kosong)
-- [ ] 5.3 Tambah tombol "Reset/Hapus Semua Data" untuk mulai proyek baru
-- [ ] 5.4 Test: isi beberapa baris, refresh browser, pastikan data masih ada
+- [x] 5.1 Setiap kali baris baru ditambahkan ke tabel, simpan seluruh data tabel ke local storage
+- [x] 5.2 Saat aplikasi dibuka ulang, load data dari local storage dan tampilkan kembali di tabel (bukan mulai dari kosong)
+- [x] 5.3 Tambah tombol "Reset/Hapus Semua Data" untuk mulai proyek baru
+- [x] 5.4 Test: isi beberapa baris, refresh browser, pastikan data masih ada
 
 Konteks: ini fondasi metrik retensi yang disebut di PRD. Tanpa ini, setiap user buka ulang aplikasi, kerja mereka hilang.
 
@@ -78,11 +78,11 @@ Konteks: ini fondasi metrik retensi yang disebut di PRD. Tanpa ini, setiap user 
 
 ## 6. Polish Minimal & Validasi Akhir MVP
 
-- [ ] 6.1 Pastikan tombol input cukup besar untuk disentuh jari di layar HP (sesuai catatan UX di PRD)
-- [ ] 6.2 Cek tampilan responsif minimal di HP (tidak perlu sempurna, cukup tidak berantakan)
-- [ ] 6.3 Baca ulang seluruh flow dari awal sebagai user baru: buka app, isi form, hitung, lihat tabel, refresh, data masih ada
-- [ ] 6.4 Perbaiki bug/typo yang ditemukan di 6.3
-- [ ] 6.5 STOP di sini. Jangan tambah fitur baru. Lanjut ke task 7.
+- [x] 6.1 Pastikan tombol input cukup besar untuk disentuh jari di layar HP (sesuai catatan UX di PRD)
+- [x] 6.2 Cek tampilan responsif minimal di HP (tidak perlu sempurna, cukup tidak berantakan)
+- [x] 6.3 Baca ulang seluruh flow dari awal sebagai user baru: buka app, isi form, hitung, lihat tabel, refresh, data masih ada
+- [x] 6.4 Perbaiki bug/typo yang ditemukan di 6.3
+- [x] 6.5 STOP di sini. Jangan tambah fitur baru. Lanjut ke task 7.
 
 ---
 

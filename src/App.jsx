@@ -1,122 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from 'react';
+import CalculatorForm from './components/CalculatorForm';
+import RecapTable from './components/RecapTable';
+import { calculateRebarWeight } from './utils/formulas';
+import { loadRecapData, saveRecapData, clearRecapData } from './utils/storage';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [recapList, setRecapList] = useState([]);
+
+  // Load initial data on mount
+  useEffect(() => {
+    const data = loadRecapData();
+    setRecapList(data);
+  }, []);
+
+  const handleAddRow = (formData) => {
+    const weightKg = calculateRebarWeight(
+      formData.diameter,
+      formData.length,
+      formData.quantity
+    );
+    const weightTon = weightKg / 1000;
+
+    const newItem = {
+      id: Date.now().toString(),
+      ...formData,
+      weightKg,
+      weightTon,
+    };
+
+    const updatedList = [...recapList, newItem];
+    setRecapList(updatedList);
+    saveRecapData(updatedList);
+  };
+
+  const handleDeleteRow = (id) => {
+    const updatedList = recapList.filter((item) => item.id !== id);
+    setRecapList(updatedList);
+    saveRecapData(updatedList);
+  };
+
+  const handleClearAll = () => {
+    clearRecapData();
+    setRecapList([]);
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="container">
+      <header>
+        <h1>ILoveBesi</h1>
+        <p>Kalkulator Besi Beton & Bar Bending Schedule (BBS) Standar SNI</p>
+      </header>
 
-      <div className="ticks"></div>
+      <main className="layout-grid">
+        <CalculatorForm onSubmit={handleAddRow} />
+        <RecapTable
+          items={recapList}
+          onDelete={handleDeleteRow}
+          onClearAll={handleClearAll}
+        />
+      </main>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <footer>
+        <p>&copy; {new Date().getFullYear()} ILoveBesi. Aplikasi Validasi Konstruksi Lapangan.</p>
+      </footer>
+    </div>
+  );
 }
-
-export default App
