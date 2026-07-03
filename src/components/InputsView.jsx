@@ -180,6 +180,18 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
               />
             </div>
 
+            <div className="form-group full-width">
+              <label htmlFor="steelType">Tipe Besi</label>
+              <select
+                id="steelType"
+                value={steelType}
+                onChange={(e) => setSteelType(e.target.value)}
+              >
+                <option value="BjTP">Besi Polos (BjTP)</option>
+                <option value="BjTS">Besi Sirip/Ulir (BjTS)</option>
+              </select>
+            </div>
+
             <div className="form-group">
               <label htmlFor="diameter">Diameter (mm)</label>
               <select
