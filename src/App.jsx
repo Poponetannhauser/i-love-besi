@@ -18,6 +18,7 @@ export default function App() {
   const [activeProjectId, setActiveProjectId] = useState('1');
   const [activeTab, setActiveTab] = useState('projects'); // Start on projects tab
   const [view, setView] = useState('landing'); // 'landing' or 'app'
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Load initial data on mount
   useEffect(() => {
@@ -37,6 +38,11 @@ export default function App() {
 
   const activeProject = projects.find(p => p.id === activeProjectId) || projects[0] || DEFAULT_PROJECTS[0];
   const recapList = activeProject ? activeProject.items : [];
+
+  const handleSetTab = (tab) => {
+    setActiveTab(tab);
+    setIsSidebarOpen(false);
+  };
 
   const handleAddRow = (formData) => {
     const weightKg = calculateRebarWeight(
@@ -108,6 +114,7 @@ export default function App() {
   const handleSelectProject = (id) => {
     setActiveProjectId(id);
     setActiveTab('dashboard'); // Navigate to dashboard when project card is clicked
+    setIsSidebarOpen(false);
   };
 
   const handleDeleteProject = (projectId) => {
@@ -166,9 +173,19 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Sidebar Backdrop Overlay for Mobile Drawer */}
+      {isSidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)}></div>
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
-        <div className="brand-logo" onClick={() => setView('landing')} style={{ cursor: 'pointer', color: '#111827' }}>
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        {/* Sidebar Drawer Close Button (Visible on mobile/tablet) */}
+        <button className="sidebar-close-btn" onClick={() => setIsSidebarOpen(false)} title="Close Sidebar">
+          &times;
+        </button>
+
+        <div className="brand-logo" onClick={() => { setView('landing'); setIsSidebarOpen(false); }} style={{ cursor: 'pointer', color: '#111827' }}>
           ILOVEBESI
         </div>
         
@@ -182,7 +199,7 @@ export default function App() {
         <nav className="nav-menu">
           <button 
             className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}
-            onClick={() => setActiveTab('projects')}
+            onClick={() => handleSetTab('projects')}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
@@ -192,7 +209,7 @@ export default function App() {
 
           <button 
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => handleSetTab('dashboard')}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
@@ -202,7 +219,7 @@ export default function App() {
 
           <button 
             className={`nav-item ${activeTab === 'inputs' ? 'active' : ''}`}
-            onClick={() => setActiveTab('inputs')}
+            onClick={() => handleSetTab('inputs')}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -212,7 +229,7 @@ export default function App() {
           
           <button 
             className={`nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
-            onClick={() => setActiveTab('inventory')}
+            onClick={() => handleSetTab('inventory')}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -222,7 +239,7 @@ export default function App() {
 
           <button 
             className={`nav-item ${activeTab === 'cut-lists' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cut-lists')}
+            onClick={() => handleSetTab('cut-lists')}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -232,7 +249,7 @@ export default function App() {
 
           <button 
             className={`nav-item ${activeTab === 'optimizations' ? 'active' : ''}`}
-            onClick={() => setActiveTab('optimizations')}
+            onClick={() => handleSetTab('optimizations')}
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z" />
@@ -242,7 +259,7 @@ export default function App() {
           </button>
         </nav>
 
-        <button className="btn-action-sidebar" onClick={() => setActiveTab('inputs')}>
+        <button className="btn-action-sidebar" onClick={() => handleSetTab('inputs')}>
           NEW OPTIMIZATION
         </button>
 
@@ -260,7 +277,13 @@ export default function App() {
       <main className="main-content">
         {/* Top Header Bar */}
         <header className="app-header-bar">
-          <div className="header-title-section">
+          <div className="header-title-section" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {/* Hamburger Trigger Menu (Visible on mobile/tablet) */}
+            <button className="btn-hamburger" onClick={() => setIsSidebarOpen(true)} title="Open Sidebar">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <h2>{getHeaderTitle()}</h2>
           </div>
           <div className="header-user-controls">
@@ -298,7 +321,7 @@ export default function App() {
           {activeTab === 'dashboard' && (
             <DashboardView 
               items={recapList} 
-              onNavigateToCalculator={() => setActiveTab('inputs')} 
+              onNavigateToCalculator={() => handleSetTab('inputs')} 
             />
           )}
 

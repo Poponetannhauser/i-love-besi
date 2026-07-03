@@ -12,6 +12,11 @@ export default function ProjectsView({
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectLocation, setNewProjectLocation] = useState('');
   const [activeDropdownId, setActiveDropdownId] = useState(null);
+  const [projectToDeleteId, setProjectToDeleteId] = useState(null);
+
+  const projectToDelete = useMemo(() => {
+    return projects.find(p => p.id === projectToDeleteId) || null;
+  }, [projectToDeleteId, projects]);
 
   const handleOpenModal = () => {
     setNewProjectName('');
@@ -98,9 +103,7 @@ export default function ProjectsView({
                       <button 
                         className="dropdown-item text-danger" 
                         onClick={() => {
-                          if (confirm(`Apakah Anda yakin ingin menghapus proyek "${project.name}"?`)) {
-                            onDeleteProject(project.id);
-                          }
+                          setProjectToDeleteId(project.id);
                           setActiveDropdownId(null);
                         }}
                       >
@@ -206,6 +209,39 @@ export default function ProjectsView({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Delete Confirmation Modal */}
+      {projectToDeleteId && projectToDelete && (
+        <div className="modal-overlay" onClick={() => setProjectToDeleteId(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 style={{ color: 'var(--danger)' }}>Konfirmasi Hapus</h3>
+              <button className="modal-close-btn" onClick={() => setProjectToDeleteId(null)}>&times;</button>
+            </div>
+            
+            <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+              Apakah Anda yakin ingin menghapus proyek <strong>{projectToDelete.name}</strong>?<br/>
+              Seluruh data BBS dan rekaman potongan rebar di dalam proyek ini akan dihapus secara permanen.
+            </p>
+            
+            <div className="modal-actions">
+              <button type="button" className="btn btn-dark-outline" onClick={() => setProjectToDeleteId(null)}>
+                Batal
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-danger"
+                onClick={() => {
+                  onDeleteProject(projectToDeleteId);
+                  setProjectToDeleteId(null);
+                }}
+              >
+                Hapus Permanen
+              </button>
+            </div>
           </div>
         </div>
       )}
