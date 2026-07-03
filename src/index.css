@@ -1587,3 +1587,37 @@ select:focus {
   width: 1.75rem;
   height: 1.75rem;
 }
+
+/* Sub-tabs inside cards */
+.form-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--text-dark);
+}
+
+.tab-btn.active {
+  background-color: var(--yellow);
+  color: var(--text-dark);
+  box-shadow: var(--shadow-sm);
+}
+
