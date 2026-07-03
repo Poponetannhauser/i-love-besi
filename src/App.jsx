@@ -43,18 +43,29 @@ export default function App() {
   };
 
   const handleAddRow = (formData) => {
+    const activeDiaForWeight = formData.isTolerance && formData.diameterAktual
+      ? Number(formData.diameterAktual)
+      : Number(formData.diameter);
+
     const weightKg = calculateRebarWeight(
-      formData.diameter,
+      activeDiaForWeight,
       formData.length,
       formData.quantity
     );
     const weightTon = weightKg / 1000;
+
+    const weightNominalKg = calculateRebarWeight(
+      formData.diameter,
+      formData.length,
+      formData.quantity
+    );
 
     const newItem = {
       id: Date.now().toString(),
       ...formData,
       weightKg,
       weightTon,
+      weightNominalKg: formData.isTolerance ? weightNominalKg : weightKg
     };
 
     const updatedProjects = projects.map(p => {

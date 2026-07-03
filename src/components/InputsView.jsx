@@ -25,6 +25,14 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
   const [spacing, setSpacing] = useState('15'); // cm (default)
   const [elementQty, setElementQty] = useState('1'); // unit (default)
 
+  // 3. Overlap & Besi Banci States (Fase 2)
+  const [hasOverlap, setHasOverlap] = useState(false);
+  const [overlapType, setOverlapType] = useState('40d'); // '40d', '50d', 'custom'
+  const [customOverlapFactor, setCustomOverlapFactor] = useState('40');
+  const [isTolerance, setIsTolerance] = useState(false);
+  const [toleranceType, setToleranceType] = useState('0.3'); // '0.3', '0.5', 'custom'
+  const [customDiameterAktual, setCustomDiameterAktual] = useState('');
+
   // Calculate optimization patterns dynamically based on items
   const optData = useMemo(() => {
     if (!items || items.length === 0) {
@@ -141,12 +149,47 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
       return;
     }
 
+    // Overlap Calculation
+    let overlapLength = 0;
+    let overlapFactorVal = 0;
+    if (hasOverlap) {
+      const factor = overlapType === '40d' ? 40 : overlapType === '50d' ? 50 : Number(customOverlapFactor);
+      overlapFactorVal = factor;
+      overlapLength = Number(((d * factor) / 1000).toFixed(3));
+    }
+    const finalLength = Number((L + overlapLength).toFixed(3));
+
+    // Besi Banci / Tolerance Calculation
+    let diameterAktual = d;
+    if (isTolerance) {
+      if (toleranceType === '0.3') {
+        diameterAktual = Number((d - 0.3).toFixed(1));
+      } else if (toleranceType === '0.5') {
+        diameterAktual = Number((d - 0.5).toFixed(1));
+      } else {
+        const val = Number(customDiameterAktual);
+        if (!val || val <= 0 || isNaN(val)) {
+          setError('Diameter aktual custom harus berupa angka positif.');
+          return;
+        }
+        diameterAktual = val;
+      }
+    }
+
     onAddRow({
       elementName: nameToUse,
       steelType,
       diameter: d,
-      length: L,
-      quantity: N
+      length: finalLength,
+      quantity: N,
+      baseLength: L,
+      overlapLength,
+      hasOverlap,
+      overlapFactor: overlapFactorVal,
+      diameterAktual,
+      isTolerance,
+      toleranceType,
+      customDiameterAktual: toleranceType === 'custom' ? customDiameterAktual : ''
     });
 
     // Reset input fields
@@ -255,6 +298,61 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
       weightKg: Number(weightKg.toFixed(2))
     };
   }, [formType, concreteWidth, concreteHeight, concreteCover, hookLength, beamLength, spacing, elementQty, diameter]);
+
+  // Derived state: Live direct cut preview calculation
+  const liveDirectPreview = useMemo(() => {
+    if (formType !== 'direct') return null;
+
+    const d = Number(diameter);
+    const L = Number(cutLength);
+    const N = Number(quantity);
+
+    if (isNaN(d) || d <= 0 || isNaN(L) || L <= 0 || isNaN(N) || N <= 0) {
+      return null;
+    }
+
+    // 1. Overlap calculation
+    let overlapLength = 0;
+    if (hasOverlap) {
+      const factor = overlapType === '40d' ? 40 : overlapType === '50d' ? 50 : Number(customOverlapFactor);
+      if (factor && factor > 0) {
+        overlapLength = Number(((d * factor) / 1000).toFixed(3));
+      }
+    }
+    const finalLength = Number((L + overlapLength).toFixed(3));
+
+    // 2. Tolerance calculation
+    let diameterAktual = d;
+    let shrinkagePct = 0;
+    if (isTolerance) {
+      if (toleranceType === '0.3') {
+        diameterAktual = Number((d - 0.3).toFixed(1));
+      } else if (toleranceType === '0.5') {
+        diameterAktual = Number((d - 0.5).toFixed(1));
+      } else if (customDiameterAktual) {
+        diameterAktual = Number(Number(customDiameterAktual).toFixed(2));
+      }
+      
+      if (diameterAktual > 0) {
+        const nominalWeightFactor = 0.006165 * d * d;
+        const actualWeightFactor = 0.006165 * diameterAktual * diameterAktual;
+        shrinkagePct = Number(((nominalWeightFactor - actualWeightFactor) / nominalWeightFactor * 100).toFixed(2));
+      }
+    }
+
+    // Weight calculation
+    const weightNominalKg = 0.006165 * d * d * finalLength * N;
+    const weightActualKg = 0.006165 * diameterAktual * diameterAktual * finalLength * N;
+
+    return {
+      overlapLength,
+      finalLength,
+      diameterAktual,
+      shrinkagePct: isNaN(shrinkagePct) ? 0 : shrinkagePct,
+      weightNominalKg,
+      weightActualKg
+    };
+  }, [formType, diameter, cutLength, quantity, hasOverlap, overlapType, customOverlapFactor, isTolerance, toleranceType, customDiameterAktual]);
 
   // Apply Quick Presets
   const applyPreset = (diaVal, lengthVal) => {
@@ -372,6 +470,105 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
                   onChange={(e) => setQuantity(e.target.value)}
                 />
               </div>
+
+              {/* Overlap & Besi Banci Options */}
+              <div className="form-group full-width" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: 'var(--radius-sm)', border: 'var(--border-light)', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    id="hasOverlap"
+                    type="checkbox"
+                    checked={hasOverlap}
+                    onChange={(e) => setHasOverlap(e.target.checked)}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="hasOverlap" style={{ fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
+                    Aktifkan Sambungan (Overlap)
+                  </label>
+                </div>
+                
+                {hasOverlap && (
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexDirection: 'column' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Opsi Sambungan</label>
+                    <select
+                      value={overlapType}
+                      onChange={(e) => setOverlapType(e.target.value)}
+                      style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                    >
+                      <option value="40d">Tulangan Bawah (Tarik) - 40d</option>
+                      <option value="50d">Tulangan Atas (Tarik) - 50d</option>
+                      <option value="custom">Custom Overlap</option>
+                    </select>
+                    {overlapType === 'custom' && (
+                      <input
+                        type="number"
+                        placeholder="Contoh: 40"
+                        value={customOverlapFactor}
+                        onChange={(e) => setCustomOverlapFactor(e.target.value)}
+                        style={{ padding: '0.5rem', fontSize: '0.85rem', marginTop: '0.25rem' }}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group full-width" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: 'var(--radius-sm)', border: 'var(--border-light)', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    id="isTolerance"
+                    type="checkbox"
+                    checked={isTolerance}
+                    onChange={(e) => setIsTolerance(e.target.checked)}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="isTolerance" style={{ fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
+                    Gunakan Besi Toleransi (Besi Banci)
+                  </label>
+                </div>
+                
+                {isTolerance && (
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexDirection: 'column' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Opsi Toleransi</label>
+                    <select
+                      value={toleranceType}
+                      onChange={(e) => setToleranceType(e.target.value)}
+                      style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                    >
+                      <option value="0.3">Toleransi Pasar 0.3 mm</option>
+                      <option value="0.5">Toleransi Pasar 0.5 mm</option>
+                      <option value="custom">Custom Diameter Aktual</option>
+                    </select>
+                    {toleranceType === 'custom' && (
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="Contoh: 9.7"
+                        value={customDiameterAktual}
+                        onChange={(e) => setCustomDiameterAktual(e.target.value)}
+                        style={{ padding: '0.5rem', fontSize: '0.85rem', marginTop: '0.25rem' }}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {liveDirectPreview && (
+                <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 1', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                  {hasOverlap && (
+                    <div className="preview-main-text" style={{ fontSize: '0.85rem' }}>
+                      Overlap: <strong>+{liveDirectPreview.overlapLength} m</strong> per batang (Total: {liveDirectPreview.finalLength} m)
+                    </div>
+                  )}
+                  {isTolerance && (
+                    <div className="preview-main-text" style={{ fontSize: '0.85rem', color: 'var(--danger)' }}>
+                      Besi Banci ({liveDirectPreview.diameterAktual}mm): Penyusutan Berat <strong>{liveDirectPreview.shrinkagePct}%</strong>
+                    </div>
+                  )}
+                  <div className="preview-sub-text" style={{ fontSize: '0.75rem', fontWeight: '600' }}>
+                    Berat Nominal: {liveDirectPreview.weightNominalKg.toFixed(2)} kg
+                    {isTolerance && ` | Berat Timbangan: ${liveDirectPreview.weightActualKg.toFixed(2)} kg`}
+                  </div>
+                </div>
+              )}
 
               <button type="submit" className="btn btn-primary full-width" style={{ marginTop: '0.5rem' }}>
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18">
@@ -613,10 +810,11 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
             <table className="recap-table">
               <thead>
                 <tr>
+                  <th>DESKRIPSI & INFO</th>
                   <th>DIA</th>
-                  <th>PANJANG (M)</th>
+                  <th>PANJANG</th>
                   <th>QTY</th>
-                  <th>TOTAL (M)</th>
+                  <th>BERAT</th>
                   <th style={{ textAlign: 'center' }}>AKSI</th>
                 </tr>
               </thead>
@@ -624,10 +822,18 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
                 {items.length > 0 ? (
                   items.map(item => (
                     <tr key={item.id}>
+                      <td>
+                        <div style={{ fontWeight: '700' }}>{item.elementName}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                          {item.steelType === 'BjTP' ? 'Polos' : 'Ulir'}
+                          {item.hasOverlap && ` | Overlap +${item.overlapLength}m`}
+                          {item.isTolerance && ` | Banci (${item.diameterAktual}mm)`}
+                        </div>
+                      </td>
                       <td className="font-bold">D{item.diameter}</td>
                       <td>{item.length} m</td>
-                      <td>{item.quantity}</td>
-                      <td className="font-bold">{(item.length * item.quantity).toFixed(2)} m</td>
+                      <td>{item.quantity} pcs</td>
+                      <td className="font-bold">{item.weightKg.toFixed(2)} kg</td>
                       <td style={{ textAlign: 'center' }}>
                         <button className="btn-icon-delete" onClick={() => onDeleteRow(item.id)}>
                           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
@@ -639,7 +845,7 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center" style={{ color: '#9ca3af', padding: '2rem' }}>
+                    <td colSpan="6" className="text-center" style={{ color: '#9ca3af', padding: '2rem' }}>
                       Tidak ada entri potongan aktif.
                     </td>
                   </tr>

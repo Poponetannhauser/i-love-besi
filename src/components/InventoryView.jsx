@@ -37,11 +37,13 @@ export default function InventoryView({ items }) {
           length: 12.00,
           qty: 0,
           unitWeight: 0.006165 * Math.pow(item.diameter, 2),
-          weight: 0
+          weight: 0,
+          weightNominal: 0
         };
       }
       grouped[diaKey].qty += item.quantity;
       grouped[diaKey].weight += item.weightKg;
+      grouped[diaKey].weightNominal += (item.weightNominalKg || item.weightKg);
     });
 
     return Object.values(grouped).map(row => {
@@ -53,6 +55,7 @@ export default function InventoryView({ items }) {
         ...row,
         unitWeight: Number(row.unitWeight.toFixed(3)),
         weight: Number(row.weight.toFixed(2)),
+        weightNominal: Number(row.weightNominal.toFixed(2)),
         status
       };
     });
@@ -60,7 +63,11 @@ export default function InventoryView({ items }) {
 
   const totalLedgerWeight = useMemo(() => {
     const total = ledgerRows.reduce((sum, row) => sum + row.weight, 0);
-    return total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const nominalTotal = ledgerRows.reduce((sum, row) => sum + row.weightNominal, 0);
+    return {
+      actual: total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      nominal: nominalTotal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    };
   }, [ledgerRows]);
 
   return (
@@ -121,7 +128,8 @@ export default function InventoryView({ items }) {
                 <th>LENGTH (M)</th>
                 <th>QUANTITY (PCS)</th>
                 <th>UNIT WEIGHT (KG/M)</th>
-                <th>TOTAL WEIGHT (KG)</th>
+                <th>BERAT NOMINAL (KG)</th>
+                <th>BERAT AKTUAL (KG)</th>
                 <th>STATUS</th>
                 <th style={{ textAlign: 'center' }}>ACTIONS</th>
               </tr>
@@ -135,7 +143,8 @@ export default function InventoryView({ items }) {
                     <td>{row.length.toFixed(2)}</td>
                     <td>{row.qty.toLocaleString('id-ID')}</td>
                     <td>{row.unitWeight}</td>
-                    <td className="font-bold">{row.weight.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>{row.weightNominal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</td>
+                    <td className="font-bold">{row.weight.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</td>
                     <td>
                       <span className={`badge ${
                         row.status === 'IN STOCK' ? 'badge-instock' :
@@ -151,7 +160,7 @@ export default function InventoryView({ items }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center" style={{ color: 'var(--text-light)', padding: '3rem 1rem' }}>
+                  <td colSpan="9" className="text-center" style={{ color: 'var(--text-light)', padding: '3rem 1rem' }}>
                     Belum ada data ledger. Silakan tambahkan data potongan di menu Inputs terlebih dahulu.
                   </td>
                 </tr>
@@ -160,9 +169,9 @@ export default function InventoryView({ items }) {
             {ledgerRows.length > 0 && (
               <tfoot>
                 <tr>
-                  <td colSpan="5" className="text-right font-bold" style={{ backgroundColor: '#f9fafb' }}>TOTAL NET WEIGHT:</td>
-                  <td colSpan="3" className="font-bold text-accent" style={{ backgroundColor: '#f9fafb', fontSize: '1.1rem' }}>
-                    {totalLedgerWeight} kg
+                  <td colSpan="5" className="text-right font-bold" style={{ backgroundColor: '#f9fafb' }}>TOTAL NET WEIGHT (NOMINAL vs AKTUAL):</td>
+                  <td colSpan="4" className="font-bold text-accent" style={{ backgroundColor: '#f9fafb', fontSize: '1.1rem' }}>
+                    {totalLedgerWeight.nominal} kg (Nominal) / {totalLedgerWeight.actual} kg (Aktual)
                   </td>
                 </tr>
               </tfoot>

@@ -14,3 +14,17 @@ export const calculateRebarWeight = (diameter, length, quantity) => {
   const weight = 0.006165 * Math.pow(diameter, 2) * length * quantity;
   return Math.round(weight * 10000) / 10000;
 };
+
+/**
+ * Calculate the overlap length in meters
+ * 
+ * @param {number} diameter - Diameter in mm
+ * @param {number} factor - Overlap factor (e.g. 40, 50)
+ * @returns {number} Overlap length in meters
+ */
+export const calculateOverlapLength = (diameter, factor) => {
+  if (!diameter || !factor || diameter <= 0 || factor <= 0) {
+    return 0;
+  }
+  return Number(((diameter * factor) / 1000).toFixed(3));
+};
