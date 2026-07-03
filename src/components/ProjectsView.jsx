@@ -1,24 +1,40 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { optimizeCuttingStock } from '../utils/optimizations';
 
-export default function ProjectsView({ projects, onSelectProject, onAddProject }) {
-  
-  const handleAddProjectClick = () => {
-    const name = prompt("Masukkan Nama Proyek Baru:");
-    if (!name || !name.trim()) return;
-    const location = prompt("Masukkan Lokasi / Site Proyek:");
-    if (!location || !location.trim()) return;
+export default function ProjectsView({ 
+  projects, 
+  onSelectProject, 
+  onAddProject, 
+  onDeleteProject, 
+  onToggleProjectStatus 
+}) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectLocation, setNewProjectLocation] = useState('');
+  const [activeDropdownId, setActiveDropdownId] = useState(null);
+
+  const handleOpenModal = () => {
+    setNewProjectName('');
+    setNewProjectLocation('');
+    setIsModalOpen(true);
+  };
+
+  const handleModalSubmit = (e) => {
+    e.preventDefault();
+    if (!newProjectName.trim() || !newProjectLocation.trim()) return;
 
     onAddProject({
-      name: name.trim(),
-      location: location.trim(),
+      name: newProjectName.trim(),
+      location: newProjectLocation.trim(),
       status: 'ACTIVE',
       items: []
     });
+
+    setIsModalOpen(false);
   };
 
   return (
-    <div className="projects-view-container">
+    <div className="projects-view-container" onClick={() => setActiveDropdownId(null)}>
       {/* Title & Action Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
@@ -29,7 +45,7 @@ export default function ProjectsView({ projects, onSelectProject, onAddProject }
             Manage and monitor your steel reinforcement projects.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={handleAddProjectClick} style={{ padding: '0.75rem 1.5rem', borderRadius: '30px' }}>
+        <button className="btn btn-primary" onClick={handleOpenModal} style={{ padding: '0.75rem 1.5rem', borderRadius: '30px' }}>
           <span style={{ fontSize: '1.1rem', marginRight: '0.25rem' }}>+</span> Tambah Proyek Baru
         </button>
       </div>
@@ -55,7 +71,44 @@ export default function ProjectsView({ projects, onSelectProject, onAddProject }
                 <span className={`badge ${project.status === 'ACTIVE' ? 'badge-active' : 'badge-completed'}`}>
                   {project.status}
                 </span>
-                <span className="card-actions-dots">&#8942;</span>
+                
+                {/* Actions Dot Menu */}
+                <div className="project-actions-wrapper">
+                  <span 
+                    className="card-actions-dots" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveDropdownId(activeDropdownId === project.id ? null : project.id);
+                    }}
+                  >
+                    &#8942;
+                  </span>
+                  
+                  {activeDropdownId === project.id && (
+                    <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                      <button 
+                        className="dropdown-item" 
+                        onClick={() => {
+                          onToggleProjectStatus(project.id);
+                          setActiveDropdownId(null);
+                        }}
+                      >
+                        Set as {project.status === 'ACTIVE' ? 'Completed' : 'Active'}
+                      </button>
+                      <button 
+                        className="dropdown-item text-danger" 
+                        onClick={() => {
+                          if (confirm(`Apakah Anda yakin ingin menghapus proyek "${project.name}"?`)) {
+                            onDeleteProject(project.id);
+                          }
+                          setActiveDropdownId(null);
+                        }}
+                      >
+                        Hapus Proyek
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <h3 className="project-card-title">{project.name}</h3>
@@ -110,6 +163,52 @@ export default function ProjectsView({ projects, onSelectProject, onAddProject }
         <p className="cta-header-text">Ready to optimize more?</p>
         <p className="cta-sub-text">Create a new project to start reducing scrap and saving costs.</p>
       </div>
+
+      {/* Custom Add Project Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Tambah Proyek Baru</h3>
+              <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}>&times;</button>
+            </div>
+            
+            <form onSubmit={handleModalSubmit} className="form-grid" style={{ gap: '1rem', display: 'flex', flexDirection: 'column' }}>
+              <div className="form-group full-width">
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.35rem', display: 'block' }}>Nama Proyek</label>
+                <input 
+                  type="text" 
+                  placeholder="Contoh: Project Alpha, Terminal 3" 
+                  value={newProjectName} 
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  style={{ width: '100%', padding: '0.6rem 0.85rem', fontFamily: 'var(--font-sans)', border: 'var(--border-light)', borderRadius: 'var(--radius-sm)' }}
+                  required
+                />
+              </div>
+              <div className="form-group full-width">
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.35rem', display: 'block' }}>Lokasi / Site Proyek</label>
+                <input 
+                  type="text" 
+                  placeholder="Contoh: Site 402, Jakarta" 
+                  value={newProjectLocation} 
+                  onChange={(e) => setNewProjectLocation(e.target.value)}
+                  style={{ width: '100%', padding: '0.6rem 0.85rem', fontFamily: 'var(--font-sans)', border: 'var(--border-light)', borderRadius: 'var(--radius-sm)' }}
+                  required
+                />
+              </div>
+              
+              <div className="modal-actions">
+                <button type="button" className="btn btn-dark-outline" onClick={() => setIsModalOpen(false)}>
+                  Batal
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Simpan Proyek
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

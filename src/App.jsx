@@ -110,6 +110,36 @@ export default function App() {
     setActiveTab('dashboard'); // Navigate to dashboard when project card is clicked
   };
 
+  const handleDeleteProject = (projectId) => {
+    const remainingProjects = projects.filter(p => p.id !== projectId);
+    let finalProjects = remainingProjects;
+    
+    if (remainingProjects.length === 0) {
+      finalProjects = DEFAULT_PROJECTS;
+    }
+    
+    setProjects(finalProjects);
+    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(finalProjects));
+    
+    if (activeProjectId === projectId) {
+      setActiveProjectId(finalProjects[0].id);
+    }
+  };
+
+  const handleToggleProjectStatus = (projectId) => {
+    const updatedProjects = projects.map(p => {
+      if (p.id === projectId) {
+        return {
+          ...p,
+          status: p.status === 'ACTIVE' ? 'COMPLETED' : 'ACTIVE'
+        };
+      }
+      return p;
+    });
+    setProjects(updatedProjects);
+    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(updatedProjects));
+  };
+
   // Helper to determine the header title dynamically
   const getHeaderTitle = () => {
     switch (activeTab) {
@@ -260,6 +290,8 @@ export default function App() {
               projects={projects}
               onSelectProject={handleSelectProject}
               onAddProject={handleAddProject}
+              onDeleteProject={handleDeleteProject}
+              onToggleProjectStatus={handleToggleProjectStatus}
             />
           )}
 

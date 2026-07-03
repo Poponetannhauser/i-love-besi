@@ -186,8 +186,8 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
       return;
     }
 
-    // 2. Total clean circumference + hook (in cm converted to meters)
-    const cutLen = Number(((2 * (cleanWidth + cleanHeight) + hook) / 100).toFixed(3));
+    // 2. Total clean circumference + (2 * hook) (in cm converted to meters)
+    const cutLen = Number(((2 * (cleanWidth + cleanHeight) + (hook * 2)) / 100).toFixed(3));
 
     // 3. Spacing count: L_beam in cm / spacing
     const sengkangPerElem = Math.round((L_beam * 100) / S_spacing);
@@ -209,6 +209,52 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
     setConcreteHeight('');
     setBeamLength('');
   };
+
+  // Derived state: Live sengkang preview calculation
+  const liveSengkangPreview = useMemo(() => {
+    if (formType !== 'sengkang') return null;
+
+    const width = Number(concreteWidth);
+    const height = Number(concreteHeight);
+    const cover = Number(concreteCover);
+    const hook = Number(hookLength);
+    const L_beam = Number(beamLength);
+    const S_spacing = Number(spacing);
+    const Qty_elem = Number(elementQty);
+
+    if (
+      isNaN(width) || width <= 0 ||
+      isNaN(height) || height <= 0 ||
+      isNaN(cover) || cover < 0 ||
+      isNaN(hook) || hook < 0 ||
+      isNaN(L_beam) || L_beam <= 0 ||
+      isNaN(S_spacing) || S_spacing <= 0 ||
+      isNaN(Qty_elem) || Qty_elem <= 0
+    ) {
+      return null;
+    }
+
+    const cleanWidth = width - (2 * cover);
+    const cleanHeight = height - (2 * cover);
+    if (cleanWidth <= 0 || cleanHeight <= 0) return null;
+
+    // Length of 1 begel (in meters)
+    const singleLen = Number(((2 * (cleanWidth + cleanHeight) + (hook * 2)) / 100).toFixed(3));
+
+    // Quantity of sengkangs
+    const qtyPerBeam = Math.round((L_beam * 100) / S_spacing);
+    const totalQty = qtyPerBeam * Qty_elem;
+
+    // Weight calculation: 0.006165 * d^2 * L * N
+    const d = Number(diameter);
+    const weightKg = 0.006165 * d * d * singleLen * totalQty;
+
+    return {
+      singleLength: singleLen,
+      quantity: totalQty,
+      weightKg: Number(weightKg.toFixed(2))
+    };
+  }, [formType, concreteWidth, concreteHeight, concreteCover, hookLength, beamLength, spacing, elementQty, diameter]);
 
   // Apply Quick Presets
   const applyPreset = (diaVal, lengthVal) => {
@@ -451,6 +497,17 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
                   onChange={(e) => setElementQty(e.target.value)}
                 />
               </div>
+
+              {liveSengkangPreview && (
+                <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 2' }}>
+                  <div className="preview-main-text">
+                    Total Kebutuhan: <strong>{liveSengkangPreview.quantity} Pcs</strong> Sengkang ({liveSengkangPreview.weightKg.toFixed(2)} kg)
+                  </div>
+                  <div className="preview-sub-text">
+                    Besi {steelType === 'BjTP' ? 'Polos' : 'Ulir'} D{diameter} &bull; Panjang 1 Begel: {liveSengkangPreview.singleLength}m
+                  </div>
+                </div>
+              )}
 
               <button type="submit" className="btn btn-primary full-width" style={{ marginTop: '0.5rem', gridColumn: 'span 2' }}>
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18">
