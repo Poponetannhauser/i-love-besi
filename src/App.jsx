@@ -7,15 +7,11 @@ import ProjectsView from './components/ProjectsView';
 import LandingPage from './components/LandingPage';
 import { calculateRebarWeight } from './utils/formulas';
 
-const DEFAULT_PROJECTS = [
-  { id: '1', name: 'Project Alpha', location: 'Site 402 - Zone B', status: 'ACTIVE', items: [] },
-  { id: '2', name: 'Terminal 3 Extension', location: 'Jakarta Intl Airport', status: 'ACTIVE', items: [] },
-  { id: '3', name: 'Ciliwung Bridge B', location: 'East Jakarta', status: 'COMPLETED', items: [] }
-];
+const DEFAULT_PROJECTS = [];
 
 export default function App() {
   const [projects, setProjects] = useState([]);
-  const [activeProjectId, setActiveProjectId] = useState('1');
+  const [activeProjectId, setActiveProjectId] = useState('');
   const [activeTab, setActiveTab] = useState('projects'); // Start on projects tab
   const [view, setView] = useState('landing'); // 'landing' or 'app'
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -24,8 +20,10 @@ export default function App() {
   useEffect(() => {
     try {
       const data = localStorage.getItem('ilovebesi_multi_projects');
-      if (data) {
-        setProjects(JSON.parse(data));
+      if (data && JSON.parse(data).length > 0) {
+        const parsed = JSON.parse(data);
+        setProjects(parsed);
+        setActiveProjectId(parsed[0].id);
       } else {
         setProjects(DEFAULT_PROJECTS);
         localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(DEFAULT_PROJECTS));
@@ -36,7 +34,7 @@ export default function App() {
     }
   }, []);
 
-  const activeProject = projects.find(p => p.id === activeProjectId) || projects[0] || DEFAULT_PROJECTS[0];
+  const activeProject = projects.find(p => p.id === activeProjectId) || projects[0] || null;
   const recapList = activeProject ? activeProject.items : [];
 
   const handleSetTab = (tab) => {
@@ -119,17 +117,15 @@ export default function App() {
 
   const handleDeleteProject = (projectId) => {
     const remainingProjects = projects.filter(p => p.id !== projectId);
-    let finalProjects = remainingProjects;
-    
-    if (remainingProjects.length === 0) {
-      finalProjects = DEFAULT_PROJECTS;
-    }
-    
-    setProjects(finalProjects);
-    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(finalProjects));
+    setProjects(remainingProjects);
+    localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(remainingProjects));
     
     if (activeProjectId === projectId) {
-      setActiveProjectId(finalProjects[0].id);
+      if (remainingProjects.length > 0) {
+        setActiveProjectId(remainingProjects[0].id);
+      } else {
+        setActiveProjectId('');
+      }
     }
   };
 
@@ -189,10 +185,15 @@ export default function App() {
           ILOVEBESI
         </div>
         
-        {activeProject && (
+        {activeProject ? (
           <div className="project-context">
             <div className="project-title" style={{ textTransform: 'uppercase' }}>{activeProject.name}</div>
             <div className="project-subtitle">{activeProject.location}</div>
+          </div>
+        ) : (
+          <div className="project-context">
+            <div className="project-title" style={{ color: 'var(--text-light)' }}>NO PROJECT SELECTED</div>
+            <div className="project-subtitle">Please create a new project</div>
           </div>
         )}
 
