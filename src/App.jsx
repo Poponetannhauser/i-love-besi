@@ -34,7 +34,14 @@ export default function App() {
     }
   }, []);
 
-  const activeProject = projects.find(p => p.id === activeProjectId) || projects[0] || null;
+  // Auto-sync activeProjectId when projects exist but none is active
+  useEffect(() => {
+    if (!activeProjectId && projects.length > 0) {
+      setActiveProjectId(projects[0].id);
+    }
+  }, [projects, activeProjectId]);
+
+  const activeProject = projects.find(p => p.id === activeProjectId) || null;
   const recapList = activeProject ? activeProject.items : [];
 
   const handleSetTab = (tab) => {
@@ -111,12 +118,14 @@ export default function App() {
   };
 
   const handleAddProject = (newProj) => {
+    const newId = Date.now().toString();
     const newProject = {
-      id: Date.now().toString(),
+      id: newId,
       ...newProj
     };
     const updatedProjects = [...projects, newProject];
     setProjects(updatedProjects);
+    setActiveProjectId(newId);
     localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(updatedProjects));
   };
 
@@ -343,6 +352,8 @@ export default function App() {
               onAddRow={handleAddRow}
               onDeleteRow={handleDeleteRow}
               onClearAll={handleClearAll}
+              hasActiveProject={!!activeProject}
+              onNavigateToTab={handleSetTab}
             />
           )}
 

@@ -82,35 +82,37 @@ export default function DashboardView({ items, onNavigateToCalculator }) {
             </button>
           </div>
           <div className="panel-body">
-            <table className="flat-table">
-              <thead>
-                <tr>
-                  <th>PROJECT / ELEMENT</th>
-                  <th>STEEL GRADE</th>
-                  <th>WASTE %</th>
-                  <th>SAVINGS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.length > 0 ? (
-                  items.slice(-4).map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.elementName}</td>
-                      <td>{item.steelType === 'BjTP' ? 'Grade 280 (Plain)' : 'Grade 420 (Deformed)'} ({item.diameter}mm)</td>
-                      <td className="text-warning font-bold">{(optData.waste).toFixed(1)}%</td>
-                      <td>Rp {(item.weightKg * 1200).toLocaleString('id-ID')}</td>
-                    </tr>
-                  ))
-                ) : (
+            <div className="table-responsive">
+              <table className="flat-table">
+                <thead>
                   <tr>
-                    <td colSpan="4" className="text-center" style={{ color: 'var(--text-light)', padding: '3rem 1rem' }}>
-                      Belum ada data potongan aktif. Silakan isi data di menu Inputs.
-                    </td>
+                    <th>PROJECT / ELEMENT</th>
+                    <th>STEEL GRADE</th>
+                    <th>WASTE %</th>
+                    <th>SAVINGS</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-            <button className="btn-flat-action" onClick={onNavigateToCalculator}>
+                </thead>
+                <tbody>
+                  {items.length > 0 ? (
+                    items.slice(-4).map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.elementName}</td>
+                        <td>{item.steelType === 'BjTP' ? 'Grade 280 (Plain)' : 'Grade 420 (Deformed)'} ({item.diameter}mm)</td>
+                        <td className="text-warning font-bold">{(optData.waste).toFixed(1)}%</td>
+                        <td>Rp {(item.weightKg * 1200).toLocaleString('id-ID')}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center" style={{ color: 'var(--text-light)', padding: '3rem 1rem' }}>
+                        Belum ada data potongan aktif. Silakan isi data di menu Inputs.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <button className="btn-flat-action" onClick={onNavigateToCalculator} style={{ marginTop: '1rem' }}>
               VIEW ALL ACTIVE LOGS
             </button>
           </div>

@@ -3,7 +3,7 @@ import { optimizeCuttingStock } from '../utils/optimizations';
 
 const STANDARD_DIAMETERS = [6, 8, 10, 12, 13, 16, 19, 22, 25];
 
-export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll }) {
+export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll, hasActiveProject, onNavigateToTab }) {
   const [formType, setFormType] = useState('direct'); // 'direct' or 'sengkang'
   const [error, setError] = useState('');
 
@@ -375,363 +375,382 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
     <div className="inputs-layout-grid">
       {/* Left Column: Form & Presets */}
       <div className="form-inputs-container">
-        <div className="card">
-          {/* Tabs header inside the card */}
-          <div className="form-tabs">
+        {!hasActiveProject ? (
+          <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', backgroundColor: 'var(--bg-panel)' }}>
+            <div style={{ fontSize: '3.5rem', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.05))' }}>⚠️</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-dark)' }}>BELUM ADA PROYEK AKTIF</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', maxWidth: '340px' }}>
+              Silakan pilih proyek yang sudah ada atau buat proyek baru terlebih dahulu di menu **Projects** sebelum Anda dapat menginput data pemotongan rebar.
+            </p>
             <button 
-              className={`tab-btn ${formType === 'direct' ? 'active' : ''}`}
-              onClick={() => { setFormType('direct'); setError(''); }}
+              className="btn btn-primary" 
+              onClick={() => onNavigateToTab('projects')}
+              style={{ marginTop: '0.75rem', borderRadius: '30px', padding: '0.75rem 2rem', fontWeight: '800', boxShadow: 'var(--shadow-md)' }}
             >
-              Potongan Langsung
-            </button>
-            <button 
-              className={`tab-btn ${formType === 'sengkang' ? 'active' : ''}`}
-              onClick={() => { setFormType('sengkang'); setError(''); }}
-            >
-              Asisten Sengkang
+              BUKA DAFTAR PROYEK
             </button>
           </div>
+        ) : (
+          <>
+            <div className="card">
+              {/* Tabs header inside the card */}
+              <div className="form-tabs">
+                <button 
+                  className={`tab-btn ${formType === 'direct' ? 'active' : ''}`}
+                  onClick={() => { setFormType('direct'); setError(''); }}
+                >
+                  Potongan Langsung
+                </button>
+                <button 
+                  className={`tab-btn ${formType === 'sengkang' ? 'active' : ''}`}
+                  onClick={() => { setFormType('sengkang'); setError(''); }}
+                >
+                  Asisten Sengkang
+                </button>
+              </div>
 
-          <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>&oplus;</span> 
-            {formType === 'direct' ? 'INPUT DATA POTONGAN' : 'ASISTEN INPUT SENGKANG'}
-          </h3>
+              <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                <span style={{ fontSize: '1.2rem' }}>&oplus;</span> 
+                {formType === 'direct' ? 'INPUT DATA POTONGAN' : 'ASISTEN INPUT SENGKANG'}
+              </h3>
 
-          {error && (
-            <div className="error-alert">
-              <svg className="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <span>{error}</span>
+              {error && (
+                <div className="error-alert">
+                  <svg className="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {/* Standard Form: Direct Cut */}
+              {formType === 'direct' ? (
+                <form onSubmit={handleDirectSubmit} className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="elementName">Nama Elemen / Deskripsi (Opsional)</label>
+                    <input
+                      id="elementName"
+                      type="text"
+                      placeholder="Contoh: Balok B1, Kolom K1"
+                      value={elementName}
+                      onChange={(e) => setElementName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="steelType">Tipe Besi</label>
+                    <select
+                      id="steelType"
+                      value={steelType}
+                      onChange={(e) => setSteelType(e.target.value)}
+                    >
+                      <option value="BjTP">Besi Polos (BjTP)</option>
+                      <option value="BjTS">Besi Sirip/Ulir (BjTS)</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="diameter">Diameter (mm)</label>
+                    <select
+                      id="diameter"
+                      value={diameter}
+                      onChange={(e) => setDiameter(e.target.value)}
+                    >
+                      {STANDARD_DIAMETERS.map(d => (
+                        <option key={d} value={d}>{d} mm</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="stockLength">Stock (m)</label>
+                    <input
+                      id="stockLength"
+                      type="text"
+                      disabled
+                      value={stockLength}
+                      onChange={(e) => setStockLength(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="cutLength">Panjang Potongan (m)</label>
+                    <input
+                      id="cutLength"
+                      type="number"
+                      step="any"
+                      placeholder="Contoh: 3.50"
+                      value={cutLength}
+                      onChange={(e) => setCutLength(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="quantity">Jumlah Potongan (pcs)</label>
+                    <input
+                      id="quantity"
+                      type="number"
+                      placeholder="Contoh: 150"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Overlap & Besi Banci Options */}
+                  <div className="form-group full-width" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: 'var(--radius-sm)', border: 'var(--border-light)', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        id="hasOverlap"
+                        type="checkbox"
+                        checked={hasOverlap}
+                        onChange={(e) => setHasOverlap(e.target.checked)}
+                        style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      />
+                      <label htmlFor="hasOverlap" style={{ fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
+                        Aktifkan Sambungan (Overlap)
+                      </label>
+                    </div>
+                    
+                    {hasOverlap && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexDirection: 'column' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Opsi Sambungan</label>
+                        <select
+                          value={overlapType}
+                          onChange={(e) => setOverlapType(e.target.value)}
+                          style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                        >
+                          <option value="40d">Tulangan Bawah (Tarik) - 40d</option>
+                          <option value="50d">Tulangan Atas (Tarik) - 50d</option>
+                          <option value="custom">Custom Overlap</option>
+                        </select>
+                        {overlapType === 'custom' && (
+                          <input
+                            type="number"
+                            placeholder="Contoh: 40"
+                            value={customOverlapFactor}
+                            onChange={(e) => setCustomOverlapFactor(e.target.value)}
+                            style={{ padding: '0.5rem', fontSize: '0.85rem', marginTop: '0.25rem' }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group full-width" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: 'var(--radius-sm)', border: 'var(--border-light)', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        id="isTolerance"
+                        type="checkbox"
+                        checked={isTolerance}
+                        onChange={(e) => setIsTolerance(e.target.checked)}
+                        style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      />
+                      <label htmlFor="isTolerance" style={{ fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
+                        Gunakan Besi Toleransi (Besi Banci)
+                      </label>
+                    </div>
+                    
+                    {isTolerance && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexDirection: 'column' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Opsi Toleransi</label>
+                        <select
+                          value={toleranceType}
+                          onChange={(e) => setToleranceType(e.target.value)}
+                          style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                        >
+                          <option value="0.3">Toleransi Pasar 0.3 mm</option>
+                          <option value="0.5">Toleransi Pasar 0.5 mm</option>
+                          <option value="custom">Custom Diameter Aktual</option>
+                        </select>
+                        {toleranceType === 'custom' && (
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder="Contoh: 9.7"
+                            value={customDiameterAktual}
+                            onChange={(e) => setCustomDiameterAktual(e.target.value)}
+                            style={{ padding: '0.5rem', fontSize: '0.85rem', marginTop: '0.25rem' }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {liveDirectPreview && (
+                    <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                      {hasOverlap && (
+                        <div className="preview-main-text" style={{ fontSize: '0.85rem' }}>
+                          Overlap: <strong>+{liveDirectPreview.overlapLength} m</strong> per batang (Total: {liveDirectPreview.finalLength} m)
+                        </div>
+                      )}
+                      {isTolerance && (
+                        <div className="preview-main-text" style={{ fontSize: '0.85rem', color: 'var(--danger)' }}>
+                          Besi Banci ({liveDirectPreview.diameterAktual}mm): Penyusutan Berat <strong>{liveDirectPreview.shrinkagePct}%</strong>
+                        </div>
+                      )}
+                      <div className="preview-sub-text" style={{ fontSize: '0.75rem', fontWeight: '600' }}>
+                        Berat Nominal: {liveDirectPreview.weightNominalKg.toFixed(2)} kg
+                        {isTolerance && ` | Berat Timbangan: ${liveDirectPreview.weightActualKg.toFixed(2)} kg`}
+                      </div>
+                    </div>
+                  )}
+
+                  <button type="submit" className="btn btn-primary full-width" style={{ marginTop: '0.5rem' }}>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    HITUNG & TAMBAH
+                  </button>
+                </form>
+              ) : (
+                /* Helper Form: Sengkang/Begel */
+                <form onSubmit={handleSengkangSubmit} className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="sengkangName">Nama Elemen / Deskripsi (Opsional)</label>
+                    <input
+                      id="sengkangName"
+                      type="text"
+                      placeholder="Contoh: Sengkang Balok B1"
+                      value={sengkangName}
+                      onChange={(e) => setSengkangName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="sengkangSteelType">Tipe Besi</label>
+                    <select
+                      id="sengkangSteelType"
+                      value={steelType}
+                      onChange={(e) => setSteelType(e.target.value)}
+                    >
+                      <option value="BjTP">Besi Polos (BjTP)</option>
+                      <option value="BjTS">Besi Sirip/Ulir (BjTS)</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="sengkangDiameter">Diameter (mm)</label>
+                    <select
+                      id="sengkangDiameter"
+                      value={diameter}
+                      onChange={(e) => setDiameter(e.target.value)}
+                    >
+                      {STANDARD_DIAMETERS.map(d => (
+                        <option key={d} value={d}>{d} mm</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="concreteCover">Selimut Beton (cm)</label>
+                    <input
+                      id="concreteCover"
+                      type="number"
+                      step="any"
+                      placeholder="2.5"
+                      value={concreteCover}
+                      onChange={(e) => setConcreteCover(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="concreteWidth">Lebar Beton (cm)</label>
+                    <input
+                      id="concreteWidth"
+                      type="number"
+                      placeholder="Contoh: 20"
+                      value={concreteWidth}
+                      onChange={(e) => setConcreteWidth(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="concreteHeight">Tinggi Beton (cm)</label>
+                    <input
+                      id="concreteHeight"
+                      type="number"
+                      placeholder="Contoh: 40"
+                      value={concreteHeight}
+                      onChange={(e) => setConcreteHeight(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="hookLength">Panjang Kait (cm)</label>
+                    <input
+                      id="hookLength"
+                      type="number"
+                      placeholder="10"
+                      value={hookLength}
+                      onChange={(e) => setHookLength(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="spacing">Jarak Sengkang (cm)</label>
+                    <input
+                      id="spacing"
+                      type="number"
+                      placeholder="15"
+                      value={spacing}
+                      onChange={(e) => setSpacing(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="beamLength">Panjang Balok (m)</label>
+                    <input
+                      id="beamLength"
+                      type="number"
+                      step="any"
+                      placeholder="Contoh: 4.00"
+                      value={beamLength}
+                      onChange={(e) => setBeamLength(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="elementQty">Jumlah Balok (unit)</label>
+                    <input
+                      id="elementQty"
+                      type="number"
+                      placeholder="1"
+                      value={elementQty}
+                      onChange={(e) => setElementQty(e.target.value)}
+                    />
+                  </div>
+
+                  {liveSengkangPreview && (
+                    <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 2' }}>
+                      <div className="preview-main-text">
+                        Total Kebutuhan: <strong>{liveSengkangPreview.quantity} Pcs</strong> Sengkang ({liveSengkangPreview.weightKg.toFixed(2)} kg)
+                      </div>
+                      <div className="preview-sub-text">
+                        Besi {steelType === 'BjTP' ? 'Polos' : 'Ulir'} D{diameter} &bull; Panjang 1 Begel: {liveSengkangPreview.singleLength}m
+                      </div>
+                    </div>
+                  )}
+
+                  <button type="submit" className="btn btn-primary full-width" style={{ marginTop: '0.5rem', gridColumn: 'span 2' }}>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    HITUNG & TAMBAH SENGKANG
+                  </button>
+                </form>
+              )}
             </div>
-          )}
 
-          {/* Standard Form: Direct Cut */}
-          {formType === 'direct' ? (
-            <form onSubmit={handleDirectSubmit} className="form-grid">
-              <div className="form-group full-width">
-                <label htmlFor="elementName">Nama Elemen / Deskripsi (Opsional)</label>
-                <input
-                  id="elementName"
-                  type="text"
-                  placeholder="Contoh: Balok B1, Kolom K1"
-                  value={elementName}
-                  onChange={(e) => setElementName(e.target.value)}
-                />
+            <div className="card">
+              <h4 style={{ fontWeight: '700', fontSize: '0.85rem', color: '#6b7280', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Presets Cepat:</h4>
+              <div className="preset-badge-group">
+                <button className="preset-badge" onClick={() => applyPreset(10, 2.5)}>D10 - 2.5M</button>
+                <button className="preset-badge" onClick={() => applyPreset(13, 4.0)}>D13 - 4.0M</button>
+                <button className="preset-badge" onClick={() => applyPreset(16, 3.2)}>D16 - 3.2M</button>
               </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="steelType">Tipe Besi</label>
-                <select
-                  id="steelType"
-                  value={steelType}
-                  onChange={(e) => setSteelType(e.target.value)}
-                >
-                  <option value="BjTP">Besi Polos (BjTP)</option>
-                  <option value="BjTS">Besi Sirip/Ulir (BjTS)</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="diameter">Diameter (mm)</label>
-                <select
-                  id="diameter"
-                  value={diameter}
-                  onChange={(e) => setDiameter(e.target.value)}
-                >
-                  {STANDARD_DIAMETERS.map(d => (
-                    <option key={d} value={d}>{d} mm</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="stockLength">Stock (m)</label>
-                <input
-                  id="stockLength"
-                  type="text"
-                  disabled
-                  value={stockLength}
-                  onChange={(e) => setStockLength(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="cutLength">Panjang Potongan (m)</label>
-                <input
-                  id="cutLength"
-                  type="number"
-                  step="any"
-                  placeholder="Contoh: 3.50"
-                  value={cutLength}
-                  onChange={(e) => setCutLength(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="quantity">Jumlah Potongan (pcs)</label>
-                <input
-                  id="quantity"
-                  type="number"
-                  placeholder="Contoh: 150"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
-              </div>
-
-              {/* Overlap & Besi Banci Options */}
-              <div className="form-group full-width" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: 'var(--radius-sm)', border: 'var(--border-light)', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    id="hasOverlap"
-                    type="checkbox"
-                    checked={hasOverlap}
-                    onChange={(e) => setHasOverlap(e.target.checked)}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                  />
-                  <label htmlFor="hasOverlap" style={{ fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
-                    Aktifkan Sambungan (Overlap)
-                  </label>
-                </div>
-                
-                {hasOverlap && (
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexDirection: 'column' }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Opsi Sambungan</label>
-                    <select
-                      value={overlapType}
-                      onChange={(e) => setOverlapType(e.target.value)}
-                      style={{ padding: '0.5rem', fontSize: '0.85rem' }}
-                    >
-                      <option value="40d">Tulangan Bawah (Tarik) - 40d</option>
-                      <option value="50d">Tulangan Atas (Tarik) - 50d</option>
-                      <option value="custom">Custom Overlap</option>
-                    </select>
-                    {overlapType === 'custom' && (
-                      <input
-                        type="number"
-                        placeholder="Contoh: 40"
-                        value={customOverlapFactor}
-                        onChange={(e) => setCustomOverlapFactor(e.target.value)}
-                        style={{ padding: '0.5rem', fontSize: '0.85rem', marginTop: '0.25rem' }}
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="form-group full-width" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: 'var(--radius-sm)', border: 'var(--border-light)', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    id="isTolerance"
-                    type="checkbox"
-                    checked={isTolerance}
-                    onChange={(e) => setIsTolerance(e.target.checked)}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                  />
-                  <label htmlFor="isTolerance" style={{ fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
-                    Gunakan Besi Toleransi (Besi Banci)
-                  </label>
-                </div>
-                
-                {isTolerance && (
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexDirection: 'column' }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Opsi Toleransi</label>
-                    <select
-                      value={toleranceType}
-                      onChange={(e) => setToleranceType(e.target.value)}
-                      style={{ padding: '0.5rem', fontSize: '0.85rem' }}
-                    >
-                      <option value="0.3">Toleransi Pasar 0.3 mm</option>
-                      <option value="0.5">Toleransi Pasar 0.5 mm</option>
-                      <option value="custom">Custom Diameter Aktual</option>
-                    </select>
-                    {toleranceType === 'custom' && (
-                      <input
-                        type="number"
-                        step="any"
-                        placeholder="Contoh: 9.7"
-                        value={customDiameterAktual}
-                        onChange={(e) => setCustomDiameterAktual(e.target.value)}
-                        style={{ padding: '0.5rem', fontSize: '0.85rem', marginTop: '0.25rem' }}
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {liveDirectPreview && (
-                <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
-                  {hasOverlap && (
-                    <div className="preview-main-text" style={{ fontSize: '0.85rem' }}>
-                      Overlap: <strong>+{liveDirectPreview.overlapLength} m</strong> per batang (Total: {liveDirectPreview.finalLength} m)
-                    </div>
-                  )}
-                  {isTolerance && (
-                    <div className="preview-main-text" style={{ fontSize: '0.85rem', color: 'var(--danger)' }}>
-                      Besi Banci ({liveDirectPreview.diameterAktual}mm): Penyusutan Berat <strong>{liveDirectPreview.shrinkagePct}%</strong>
-                    </div>
-                  )}
-                  <div className="preview-sub-text" style={{ fontSize: '0.75rem', fontWeight: '600' }}>
-                    Berat Nominal: {liveDirectPreview.weightNominalKg.toFixed(2)} kg
-                    {isTolerance && ` | Berat Timbangan: ${liveDirectPreview.weightActualKg.toFixed(2)} kg`}
-                  </div>
-                </div>
-              )}
-
-              <button type="submit" className="btn btn-primary full-width" style={{ marginTop: '0.5rem' }}>
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                HITUNG & TAMBAH
-              </button>
-            </form>
-          ) : (
-            /* Helper Form: Sengkang/Begel */
-            <form onSubmit={handleSengkangSubmit} className="form-grid">
-              <div className="form-group full-width">
-                <label htmlFor="sengkangName">Nama Elemen / Deskripsi (Opsional)</label>
-                <input
-                  id="sengkangName"
-                  type="text"
-                  placeholder="Contoh: Sengkang Balok B1"
-                  value={sengkangName}
-                  onChange={(e) => setSengkangName(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="sengkangSteelType">Tipe Besi</label>
-                <select
-                  id="sengkangSteelType"
-                  value={steelType}
-                  onChange={(e) => setSteelType(e.target.value)}
-                >
-                  <option value="BjTP">Besi Polos (BjTP)</option>
-                  <option value="BjTS">Besi Sirip/Ulir (BjTS)</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="sengkangDiameter">Diameter (mm)</label>
-                <select
-                  id="sengkangDiameter"
-                  value={diameter}
-                  onChange={(e) => setDiameter(e.target.value)}
-                >
-                  {STANDARD_DIAMETERS.map(d => (
-                    <option key={d} value={d}>{d} mm</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="concreteCover">Selimut Beton (cm)</label>
-                <input
-                  id="concreteCover"
-                  type="number"
-                  step="any"
-                  placeholder="2.5"
-                  value={concreteCover}
-                  onChange={(e) => setConcreteCover(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="concreteWidth">Lebar Beton (cm)</label>
-                <input
-                  id="concreteWidth"
-                  type="number"
-                  placeholder="Contoh: 20"
-                  value={concreteWidth}
-                  onChange={(e) => setConcreteWidth(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="concreteHeight">Tinggi Beton (cm)</label>
-                <input
-                  id="concreteHeight"
-                  type="number"
-                  placeholder="Contoh: 40"
-                  value={concreteHeight}
-                  onChange={(e) => setConcreteHeight(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="hookLength">Panjang Kait (cm)</label>
-                <input
-                  id="hookLength"
-                  type="number"
-                  placeholder="10"
-                  value={hookLength}
-                  onChange={(e) => setHookLength(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="spacing">Jarak Sengkang (cm)</label>
-                <input
-                  id="spacing"
-                  type="number"
-                  placeholder="15"
-                  value={spacing}
-                  onChange={(e) => setSpacing(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="beamLength">Panjang Balok (m)</label>
-                <input
-                  id="beamLength"
-                  type="number"
-                  step="any"
-                  placeholder="Contoh: 4.00"
-                  value={beamLength}
-                  onChange={(e) => setBeamLength(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="elementQty">Jumlah Balok (unit)</label>
-                <input
-                  id="elementQty"
-                  type="number"
-                  placeholder="1"
-                  value={elementQty}
-                  onChange={(e) => setElementQty(e.target.value)}
-                />
-              </div>
-
-              {liveSengkangPreview && (
-                <div className="sengkang-live-preview-banner" style={{ gridColumn: 'span 2' }}>
-                  <div className="preview-main-text">
-                    Total Kebutuhan: <strong>{liveSengkangPreview.quantity} Pcs</strong> Sengkang ({liveSengkangPreview.weightKg.toFixed(2)} kg)
-                  </div>
-                  <div className="preview-sub-text">
-                    Besi {steelType === 'BjTP' ? 'Polos' : 'Ulir'} D{diameter} &bull; Panjang 1 Begel: {liveSengkangPreview.singleLength}m
-                  </div>
-                </div>
-              )}
-
-              <button type="submit" className="btn btn-primary full-width" style={{ marginTop: '0.5rem', gridColumn: 'span 2' }}>
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                HITUNG & TAMBAH SENGKANG
-              </button>
-            </form>
-          )}
-        </div>
-
-        <div className="card">
-          <h4 style={{ fontWeight: '700', fontSize: '0.85rem', color: '#6b7280', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Presets Cepat:</h4>
-          <div className="preset-badge-group">
-            <button className="preset-badge" onClick={() => applyPreset(10, 2.5)}>D10 - 2.5M</button>
-            <button className="preset-badge" onClick={() => applyPreset(13, 4.0)}>D13 - 4.0M</button>
-            <button className="preset-badge" onClick={() => applyPreset(16, 3.2)}>D16 - 3.2M</button>
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Right Column: Visual Patterns & Recap Table */}
@@ -865,11 +884,13 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll })
       </div>
       
       {/* Floating Action Button */}
-      <button className="btn-floating-add" onClick={formType === 'direct' ? handleDirectSubmit : handleSengkangSubmit} title="Tambah data cepat">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
+      {hasActiveProject && (
+        <button className="btn-floating-add" onClick={formType === 'direct' ? handleDirectSubmit : handleSengkangSubmit} title="Tambah data cepat">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

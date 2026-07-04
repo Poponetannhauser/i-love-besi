@@ -1937,7 +1937,13 @@ select:focus {
   animation: fadeIn 0.2s ease-out;
 }
 
-@media (max-width: 992px) {
+/* Prevent horizontal scroll on views */
+.landing-page,
+.main-content {
+  overflow-x: hidden;
+}
+
+@media (max-width: 1024px) {
   .app-container {
     flex-direction: column;
     height: 100vh;
@@ -2004,6 +2010,14 @@ select:focus {
     padding: 4rem 1.5rem;
   }
 
+  .landing-middle {
+    padding: 4rem 1.5rem;
+  }
+
+  .landing-cta-section {
+    padding: 4rem 1.5rem;
+  }
+
   .landing-footer {
     padding: 3rem 1.5rem 2rem;
   }
@@ -2016,6 +2030,62 @@ select:focus {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+  }
+}
+
+/* Specific Mobile Adaptations */
+@media (max-width: 600px) {
+  .hero-cta-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  
+  .hero-cta-row button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .landing-header {
+    align-items: center;
+    text-align: center;
+  }
+
+  .landing-nav {
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .features-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .cta-form {
+    flex-direction: column;
+    background-color: transparent;
+    box-shadow: none;
+    gap: 0.75rem;
+    border-radius: 0;
+  }
+
+  .cta-input {
+    background-color: white;
+    border-radius: 24px;
+    border: 1px solid #d1d5db;
+    text-align: center;
+  }
+
+  .btn-cta-submit {
+    border-radius: 24px;
+    width: 100%;
+  }
+
+  .footer-top-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 }
 
