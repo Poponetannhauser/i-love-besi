@@ -115,7 +115,7 @@ export default function InputsView({
 
 			Object.keys(patternSummary).forEach((patternKey) => {
 				patterns.push({
-					key: patternKey,
+					key: `${groupItems[0].diameter}-${groupItems[0].steelType}-${patternKey}`,
 					pieces: patternSummary[patternKey].pieces,
 					count: patternSummary[patternKey].count,
 					diameter: groupItems[0].diameter,
@@ -138,6 +138,16 @@ export default function InputsView({
 			waste: Number((100 - efficiency).toFixed(1)),
 			patterns,
 		};
+	}, [items]);
+
+	const totalQty = useMemo(() => {
+		if (!items) return 0;
+		return items.reduce((sum, item) => sum + item.quantity, 0);
+	}, [items]);
+
+	const totalWeight = useMemo(() => {
+		if (!items) return 0;
+		return items.reduce((sum, item) => sum + item.weightKg, 0);
 	}, [items]);
 
 	// Handle Standard / Direct Cut Form Submit
@@ -1245,6 +1255,7 @@ export default function InputsView({
 						<table className="recap-table">
 							<thead>
 								<tr>
+									<th style={{ width: "60px" }}>NO</th>
 									<th>DESKRIPSI & INFO</th>
 									<th>DIA</th>
 									<th>PANJANG</th>
@@ -1255,8 +1266,11 @@ export default function InputsView({
 							</thead>
 							<tbody>
 								{items.length > 0 ? (
-									items.map((item) => (
+									items.map((item, idx) => (
 										<tr key={item.id}>
+											<td style={{ color: "var(--text-muted)", fontWeight: "600" }}>
+												{idx + 1}
+											</td>
 											<td>
 												<div style={{ fontWeight: "700" }}>
 													{item.elementName}
@@ -1266,6 +1280,7 @@ export default function InputsView({
 														fontSize: "0.75rem",
 														color: "var(--text-muted)",
 														fontWeight: "600",
+														whiteSpace: "normal"
 													}}
 												>
 													{item.steelType === "BjTP" ? "Polos" : "Ulir"}
@@ -1307,7 +1322,7 @@ export default function InputsView({
 								) : (
 									<tr>
 										<td
-											colSpan="6"
+											colSpan="7"
 											className="text-center"
 											style={{ color: "#9ca3af", padding: "2rem" }}
 										>
@@ -1316,6 +1331,22 @@ export default function InputsView({
 									</tr>
 								)}
 							</tbody>
+							{items.length > 0 && (
+								<tfoot>
+									<tr style={{ backgroundColor: "#f9fafb", fontWeight: "bold", borderTop: "2px solid #e5e7eb" }}>
+										<td colSpan="4" style={{ textAlign: "right", padding: "1rem", color: "var(--text-dark)" }}>
+											TOTAL:
+										</td>
+										<td style={{ padding: "1rem", color: "var(--text-dark)" }}>
+											{totalQty.toLocaleString("id-ID")} pcs
+										</td>
+										<td style={{ padding: "1rem", color: "var(--text-dark)" }} className="font-bold">
+											{totalWeight.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg
+										</td>
+										<td></td>
+									</tr>
+								</tfoot>
+							)}
 						</table>
 					</div>
 				</div>

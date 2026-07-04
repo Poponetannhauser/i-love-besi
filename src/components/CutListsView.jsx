@@ -66,7 +66,7 @@ export default function CutListsView({ items }) {
 
       Object.keys(patternSummary).forEach(patternKey => {
         patterns.push({
-          key: patternKey,
+          key: `${groupItems[0].diameter}-${groupItems[0].steelType}-${patternKey}`,
           pieces: patternSummary[patternKey].pieces,
           count: patternSummary[patternKey].count,
           diameter: groupItems[0].diameter,
