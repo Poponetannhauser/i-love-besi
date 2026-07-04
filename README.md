@@ -16,7 +16,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h2 align="center">ILOVEBESI</h2>
+  <h2 align="center">ILoveBesi</h2>
 
   <p align="center">
     A professional construct-tech tool designed for Quantity Surveyors (QS), contractors, and steel fixers in Indonesia to calculate standard rebar weight and minimize waste using combinatorial optimization.
@@ -49,17 +49,19 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
+    <li><a href="#project-status">Project Status</a></li>
     <li><a href="#features-and-engineering-highlights">Features & Engineering Highlights</a></li>
     <li><a href="#mathematical-foundations">Mathematical Foundations</a></li>
+    <li><a href="#development-philosophy">Development Philosophy</a></li>
+    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-ILoveBesi is a lightweight web application tailored for real-world reinforcement steel (*rebar*) estimation on Indonesian construction sites. Standard estimators typically use simple multiplication formulas that ignore material wastage during actual cutting. This project serves as a showcase portfolio that solves two critical field challenges:
+ILoveBesi is a lightweight web application tailored for real-world reinforcement steel (*rebar*) estimation on Indonesian construction sites. Standard estimators typically use simple multiplication formulas that ignore material wastage during actual cutting. This project serves as a showcase portfolio that solves critical field challenges:
 1. **Logistics Discrepancy (Besi Banci)**: Detecting and correcting rebar weight calculations when supplier diameters deviate from official SNI labels using dynamic tolerance factors.
 2. **Material Optimization**: Solving the combinatoric 1D *Cutting Stock Problem* to compute optimal cutting patterns from standard 12-meter rebars, significantly minimizing steel scrap (*waste*).
 
@@ -110,14 +112,25 @@ You only need Node.js installed on your machine.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- PROJECT STATUS -->
+## Project Status
+
+* **Phase 1 (MVP) - Complete**: Implemented core rebar weight calculator, rekap table, validation inputs, and browser local storage persistence.
+* **Phase 2 (Edge Cases) - Implementation Complete, User Validation In Progress**: Built all advanced features (F2.1 - F2.5) including 1D Cutting Stock heuristics, lap splice connectors, 135° earthquake sengkang hooks, dynamic zone distributions, and tolerance corrections. Verified against real-world construction data.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- FEATURES AND ENGINEERING HIGHLIGHTS -->
 ## Features and Engineering Highlights
 
-* **Precision Weight Calculator**: Formulates exact weights with guard clauses for negative values and decimal precision up to 4 places.
-* **1D Cutting Stock Optimizer**: Implements the **First-Fit Decreasing (FFD)** heuristic algorithm ($O(n \log n)$) to match field-required steel lengths against 12-meter base stock, presenting visual cutting schemes per bar.
+* **Precision Weight Calculator**: Formulates exact weights with guard clauses for negative values and decimal precision up to 4 places based on the SNI formula `W = 0.006165 * d^2 * L * N`.
+* **1D Cutting Stock Optimizer (F2.1)**: Implements the **First-Fit Decreasing (FFD)** heuristic algorithm ($O(n \log n)$) to match field-required steel lengths against 12-meter base stock, presenting visual cutting schemes per bar.
+* **Lap Splice Calculator (F2.2)**: Calculates exact overlap lengths using structural factors like $40d$ or $50d$ (born directly from user feedback during Phase 1 demo).
+* **Earthquake Hooks (F2.3)**: Toggle calculations for 135° earthquake hooks versus standard 90° sengkang configurations.
+* **Sengkang Dynamic Zoning (F2.4)**: Automatically determines rebar layouts across balok/kolom dividing zones into tumpuan (ends) and lapangan (middle).
+* **Besi Banci Factor Correction (F2.5)**: Introduces tolerance corrections for sub-standard actual diameters, serving as a transparent tool to verify weight logs against supplier quotes.
 * **Master Ledger & Aggregations**: Groups and summarizes materials dynamically using React `useMemo` hooks to avoid expensive re-calculations on layout updates.
 * **Responsive Layout (iPad Pro Portrait Drawer)**: Optimized styling using pure CSS variables and responsive media queries that transition the sidebar into an overlay drawer for tablet interfaces.
-* **Persisted Multi-Project State**: Built-in state guard synchronization to store projects and steel cut lists locally within the browser's `localStorage`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -141,6 +154,22 @@ Calculates the extra splicing length needed when connecting two structural rebar
 $$\text{Lap Splice} = \frac{d \times \text{Factor}}{1000}$$
 
 Where the *Factor* is typically standard structural values like $40d$ or $50d$.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- DEVELOPMENT PHILOSOPHY -->
+## Development Philosophy
+
+The project is structured around iterative deployment:
+1. Deliver a functional MVP to validate calculations and gather field feedback.
+2. Build advanced field optimizations (such as lap splices and cutting optimizations) based strictly on real surveyor requests instead of predictive assumptions.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
