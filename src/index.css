@@ -2126,6 +2126,29 @@ select:focus {
   margin-bottom: 1rem;
 }
 
+/* Suffix inputs styling */
+.input-group {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.input-group input {
+  flex-grow: 1;
+  padding-right: 3rem !important; /* Ensure input text doesn't overlap suffix */
+}
+
+.input-suffix {
+  position: absolute;
+  right: 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  pointer-events: none;
+  text-transform: lowercase;
+}
+
 
 
 
