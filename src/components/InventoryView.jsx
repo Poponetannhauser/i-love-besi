@@ -73,7 +73,7 @@ export default function InventoryView({ items }) {
           </div>
           <div className="stat-value">{stats.totalWeightTon}</div>
           <div className="stat-desc" style={{ color: '#10b981', fontWeight: '800' }}>
-            {items.length > 0 ? '+12% ↑' : '0%'} <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>vs last month</span>
+            {items.length > 0 ? `${items.length} entri ↑` : '0 entri'} <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>tercatat di proyek ini</span>
           </div>
         </div>
 

@@ -7,7 +7,7 @@ import ProjectsView from './components/ProjectsView';
 import LandingPage from './components/LandingPage';
 import { calculateRebarWeight } from './utils/formulas';
 
-const DEFAULT_PROJECTS = [];
+
 
 export default function App() {
   const [projects, setProjects] = useState([]);
@@ -20,17 +20,17 @@ export default function App() {
   useEffect(() => {
     try {
       const data = localStorage.getItem('ilovebesi_multi_projects');
-      if (data && JSON.parse(data).length > 0) {
-        const parsed = JSON.parse(data);
+      const parsed = data ? JSON.parse(data) : [];
+      if (Array.isArray(parsed) && parsed.length > 0) {
         setProjects(parsed);
         setActiveProjectId(parsed[0].id);
       } else {
-        setProjects(DEFAULT_PROJECTS);
-        localStorage.setItem('ilovebesi_multi_projects', JSON.stringify(DEFAULT_PROJECTS));
+        setProjects([]);
+        localStorage.setItem('ilovebesi_multi_projects', '[]');
       }
     } catch (e) {
       console.error('Error loading projects:', e);
-      setProjects(DEFAULT_PROJECTS);
+      setProjects([]);
     }
   }, []);
 
@@ -368,9 +368,9 @@ export default function App() {
             <CutListsView items={recapList} />
           )}
 
-          {['optimizations'].includes(activeTab) && (
+          {activeTab === 'optimizations' && (
             <div className="panel empty-view-panel">
-              <h2 style={{ textTransform: 'uppercase', marginBottom: '1rem' }}>{activeTab}</h2>
+              <h2 style={{ textTransform: 'uppercase', marginBottom: '1rem' }}>Optimizations</h2>
               <p>Bagian ini sedang dalam pengembangan untuk mendukung data riil lapangan.</p>
             </div>
           )}
