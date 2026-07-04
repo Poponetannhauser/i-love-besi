@@ -1,17 +1,6 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
-<div align="center">
-
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-</div>
 
 <!-- PROJECT LOGO -->
 <br />
@@ -166,28 +155,12 @@ The project is structured around iterative deployment:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 <!-- CONTACT -->
 ## Contact
 
 Paundra - paundraexe@gmail.com
 
 Project Link: [https://github.com/Poponetannhauser/i-love-besi](https://github.com/Poponetannhauser/i-love-besi)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [Img Shields](https://shields.io)
-* [Oxlint Code Linter](https://oxc.rs/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
