@@ -33,6 +33,10 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll, h
   const [toleranceType, setToleranceType] = useState('0.3'); // '0.3', '0.5', 'custom'
   const [customDiameterAktual, setCustomDiameterAktual] = useState('');
 
+  // 4. Delete Confirmations Modal States
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
   // Calculate optimization patterns dynamically based on items
   const optData = useMemo(() => {
     if (!items || items.length === 0) {
@@ -473,8 +477,8 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll, h
                     />
                   </div>
 
-                  <div className="form-group full-width">
-                    <label htmlFor="cutLength">Panjang Potongan (m)</label>
+                   <div className="form-group full-width">
+                    <label htmlFor="cutLength">Panjang Potongan L (m)</label>
                     <input
                       id="cutLength"
                       type="number"
@@ -486,7 +490,7 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll, h
                   </div>
 
                   <div className="form-group full-width">
-                    <label htmlFor="quantity">Jumlah Potongan (pcs)</label>
+                    <label htmlFor="quantity">Jumlah Potongan N (pcs)</label>
                     <input
                       id="quantity"
                       type="number"
@@ -827,7 +831,7 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll, h
           <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: '800' }}>DATA REBAR AKTIF</h3>
             {items.length > 0 && (
-              <button className="btn btn-danger-outline btn-sm" onClick={onClearAll}>
+              <button className="btn btn-danger-outline btn-sm" onClick={() => setShowClearConfirm(true)}>
                 Hapus Semua
               </button>
             )}
@@ -862,7 +866,7 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll, h
                       <td>{item.quantity} pcs</td>
                       <td className="font-bold">{item.weightKg.toFixed(2)} kg</td>
                       <td style={{ textAlign: 'center' }}>
-                        <button className="btn-icon-delete" onClick={() => onDeleteRow(item.id)}>
+                        <button className="btn-icon-delete" onClick={() => setItemToDelete(item)}>
                           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
@@ -890,6 +894,72 @@ export default function InputsView({ items, onAddRow, onDeleteRow, onClearAll, h
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
           </svg>
         </button>
+      )}
+
+      {/* Custom Delete Row Confirmation Modal */}
+      {itemToDelete && (
+        <div className="modal-overlay" onClick={() => setItemToDelete(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 style={{ color: 'var(--danger)' }}>Konfirmasi Hapus</h3>
+              <button className="modal-close-btn" onClick={() => setItemToDelete(null)}>&times;</button>
+            </div>
+            
+            <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+              Apakah Anda yakin ingin menghapus data potongan <strong>{itemToDelete.elementName}</strong> (D{itemToDelete.diameter} x {itemToDelete.length}m)?
+            </p>
+            
+            <div className="modal-actions">
+              <button type="button" className="btn btn-dark-outline" onClick={() => setItemToDelete(null)}>
+                Batal
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-danger"
+                style={{ backgroundColor: 'var(--danger)', color: 'white' }}
+                onClick={() => {
+                  onDeleteRow(itemToDelete.id);
+                  setItemToDelete(null);
+                }}
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Clear All Confirmation Modal */}
+      {showClearConfirm && (
+        <div className="modal-overlay" onClick={() => setShowClearConfirm(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 style={{ color: 'var(--danger)' }}>Konfirmasi Hapus Semua</h3>
+              <button className="modal-close-btn" onClick={() => setShowClearConfirm(false)}>&times;</button>
+            </div>
+            
+            <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+              Apakah Anda yakin ingin menghapus **semua data potongan aktif** dalam proyek ini? Tindakan ini tidak dapat dibatalkan.
+            </p>
+            
+            <div className="modal-actions">
+              <button type="button" className="btn btn-dark-outline" onClick={() => setShowClearConfirm(false)}>
+                Batal
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-danger"
+                style={{ backgroundColor: 'var(--danger)', color: 'white' }}
+                onClick={() => {
+                  onClearAll();
+                  setShowClearConfirm(false);
+                }}
+              >
+                Hapus Semua
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

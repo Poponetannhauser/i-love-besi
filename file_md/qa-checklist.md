@@ -1,4 +1,4 @@
-﻿# QA Checklist — ILoveBesi Web App
+# QA Checklist — ILoveBesi Web App
 
 **Versi:** Fase 1 + Fase 2 selesai
 **Dibuat:** 4 Juli 2026
@@ -49,43 +49,43 @@
 | 2A.2 | Isi Panjang = 0, klik HITUNG              | Error muncul (length > 0)                            | [x]    |
 | 2A.3 | Isi Panjang = 3.5, Jumlah = 1.5 (desimal) | Error: "Jumlah harus bilangan bulat positif"         | [x]    |
 | 2A.4 | Isi Panjang = 3.5, Jumlah = -10           | Error muncul (jumlah harus positif)                  | [x]    |
-| 2A.5 | Isi semua field valid, klik HITUNG        | Baris baru muncul di tabel, tidak ada error          | [-]    |
+| 2A.5 | Isi semua field valid, klik HITUNG        | Baris baru muncul di tabel, tidak ada error          | [x]    |
 
 ### 2B — Kalkulasi Berat Standar (rumus: W = 0.006165 x d^2 x L x N)
 
 | #    | Input               | Expected Berat                             | Status |
 | ---- | ------------------- | ------------------------------------------ | ------ |
-| 2B.1 | D=10, L=12.0m, N=1  | 0.006165 x 100 x 12 x 1 = **7.398 kg**     | [ ]    |
-| 2B.2 | D=16, L=6.0m, N=10  | 0.006165 x 256 x 6 x 10 = **94.65 kg**     | [ ]    |
-| 2B.3 | D=13, L=4.5m, N=100 | 0.006165 x 169 x 4.5 x 100 = **468.65 kg** | [ ]    |
+| 2B.1 | D=10, L=12.0m, N=1  | 0.006165 x 100 x 12 x 1 = **7.398 kg**     | [x]    |
+| 2B.2 | D=16, L=6.0m, N=10  | 0.006165 x 256 x 6 x 10 = **94.69 kg**     | [x]    |
+| 2B.3 | D=13, L=4.5m, N=100 | 0.006165 x 169 x 4.5 x 100 = **468.85 kg** | [x]    |
 
 ### 2C — Fitur Overlap (F2.2)
 
 | #    | Langkah                                         | Expected Result                                   | Status |
 | ---- | ----------------------------------------------- | ------------------------------------------------- | ------ |
-| 2C.1 | D=12, Panjang=4.0, Qty=10. Aktifkan Overlap 40d | Preview: +0.48 m per batang (Total: 4.48 m)       | [ ]    |
-| 2C.2 | Ganti ke 50d                                    | Preview: +0.60 m (Total: 4.60 m)                  | [ ]    |
-| 2C.3 | Custom faktor=35                                | Preview: +0.42 m (12x35/1000=0.42m)               | [ ]    |
-| 2C.4 | HITUNG & TAMBAH dengan overlap 40d aktif        | Tabel: kolom DESKRIPSI menampilkan Overlap +0.48m | [ ]    |
-| 2C.5 | Cek kolom PANJANG di tabel                      | Menampilkan 4.48 m (base+overlap), bukan 4.0 m    | [ ]    |
+| 2C.1 | D=12, Panjang=4.0, Qty=10. Aktifkan Overlap 40d | Preview: +0.48 m per batang (Total: 4.48 m)       | [x]    |
+| 2C.2 | Ganti ke 50d                                    | Preview: +0.60 m (Total: 4.60 m)                  | [x]    |
+| 2C.3 | Custom faktor=35                                | Preview: +0.42 m (12x35/1000=0.42m)               | [x]    |
+| 2C.4 | HITUNG & TAMBAH dengan overlap 40d aktif        | Tabel: kolom DESKRIPSI menampilkan Overlap +0.48m | [x]    |
+| 2C.5 | Cek kolom PANJANG di tabel                      | Menampilkan 4.48 m (base+overlap), bukan 4.0 m    | [x]    |
 
 ### 2D — Besi Toleransi / Besi Banci (F2.5)
 
 | #    | Langkah                                    | Expected Result                                                     | Status |
 | ---- | ------------------------------------------ | ------------------------------------------------------------------- | ------ |
-| 2D.1 | D=10, L=6.0, N=100, Banci 0.3mm            | Shrinkage: ~5.91%, Berat aktual ~348.16 kg (bukan 369.9 kg nominal) | [ ]    |
-| 2D.2 | D=12, Banci 0.5mm                          | Shrinkage: ~8.16% (d aktual=11.5mm)                                 | [ ]    |
-| 2D.3 | D=16, Custom aktual=15.2                   | Shrinkage: ~9.75%                                                   | [ ]    |
-| 2D.4 | HITUNG & TAMBAH (D=10, Banci 0.3mm)        | Tabel DESKRIPSI: Banci (9.7mm)                                      | [ ]    |
-| 2D.5 | Cek kolom BERAT                            | Berat aktual = 0.006165 x 9.7^2 x 6 x 100 = 348.16 kg               | [ ]    |
-| 2D.6 | Banci Custom, tidak isi angka, klik HITUNG | Error: "Diameter aktual custom harus berupa angka positif"          | [ ]    |
+| 2D.1 | D=10, L=6.0, N=100, Banci 0.3mm            | Shrinkage: ~5.91%, Berat aktual ~348.19 kg (bukan 369.9 kg nominal) | [x]    |
+| 2D.2 | D=12, Banci 0.5mm                          | Shrinkage: ~8.16% (d aktual=11.5mm)                                 | [x]    |
+| 2D.3 | D=16, Custom aktual=15.2                   | Shrinkage: ~9.75%                                                   | [x]    |
+| 2D.4 | HITUNG & TAMBAH (D=10, Banci 0.3mm)        | Tabel DESKRIPSI: Banci (9.7mm)                                      | [x]    |
+| 2D.5 | Cek kolom BERAT                            | Berat aktual = 0.006165 x 9.7^2 x 6 x 100 = 348.19 kg               | [x]    |
+| 2D.6 | Banci Custom, tidak isi angka, klik HITUNG | Error: "Diameter aktual custom harus berupa angka positif"          | [x]    |
 
 ### 2E — Reset Form
 
 | #    | Langkah                                       | Expected Result                           | Status |
 | ---- | --------------------------------------------- | ----------------------------------------- | ------ |
-| 2E.1 | Setelah submit sukses                         | Field Panjang, Jumlah, Nama Elemen kosong | [ ]    |
-| 2E.2 | Overlap & Banci checkbox state setelah submit | State checkbox tetap (tidak reset)        | [ ]    |
+| 2E.1 | Setelah submit sukses                         | Field Panjang, Jumlah, Nama Elemen kosong | [x]    |
+| 2E.2 | Overlap & Banci checkbox state setelah submit | State checkbox tetap (tidak reset)        | [x]    |
 
 ---
 
