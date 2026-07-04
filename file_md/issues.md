@@ -1,2 +1,0 @@
-- Tambahkan jumlah/total item di tabel. mungkin kasih nomor lebih bagus juga biar tau yang mana
-- Console error encountered two children with the same key banyak bukan satu doang
