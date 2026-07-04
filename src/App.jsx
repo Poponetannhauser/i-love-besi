@@ -34,10 +34,13 @@ export default function App() {
     }
   }, []);
 
-  // Auto-sync activeProjectId when projects exist but none is active
+  // Auto-sync activeProjectId when projects exist but none is active or active one is invalid
   useEffect(() => {
-    if (!activeProjectId && projects.length > 0) {
+    const isValid = projects.some(p => p.id === activeProjectId);
+    if ((!activeProjectId || !isValid) && projects.length > 0) {
       setActiveProjectId(projects[0].id);
+    } else if (projects.length === 0 && activeProjectId !== '') {
+      setActiveProjectId('');
     }
   }, [projects, activeProjectId]);
 
