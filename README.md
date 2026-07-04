@@ -1,80 +1,181 @@
-# 🏗️ ILOVEBESI — Web App Kalkulator Besi Beton Konstruksi
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a id="readme-top"></a>
 
-Aplikasi kalkulator volume dan berat besi beton standar SNI yang dirancang untuk membantu Quantity Surveyor (QS), kontraktor, dan praktisi lapangan di Indonesia dalam mempercepat estimasi material serta meminimalkan sisa potongan besi (*waste*).
-
-Proyek ini dibangun sebagai **proyek portofolio personal** untuk mendemonstrasikan penyelesaian masalah riil di dunia konstruksi menggunakan teknik rekayasa perangkat lunak modern.
-
----
-
-## 🎯 Latar Belakang & Masalah
-Dalam estimasi anggaran konstruksi (*Quantity Surveying*), perhitungan volume besi tulangan (*rebar*) sering kali hanya menggunakan perkalian dasar. Di lapangan, kontraktor menghadapi tantangan nyata:
-1. **Material Waste**: Sisa besi tulangan yang tidak terpakai dari panjang standar 12 meter.
-2. **Besi Toleransi (Besi Banci)**: Ketidaksesuaian diameter aktual di pasar dengan label nominal standar SNI yang memengaruhi kalkulasi berat logistik.
-
-**ILoveBesi** hadir untuk menyelesaikan masalah ini dengan menyediakan kalkulator berat jenis presisi SNI yang dilengkapi dengan algoritma optimasi pemotongan (*Cutting Stock Problem*) untuk menekan tingkat *waste* seminimal mungkin.
-
----
-
-## 🚀 Fitur Utama & Highlight Portofolio
-
-### 1. Core Engine: Kalkulator Berat SNI
-Menggunakan perhitungan matematis deterministik standar SNI untuk akurasi berat logistik:
-* **Rumus**: `W = 0.006165 × d² × L × N`
-* **Transparansi Logistik (Besi Banci)**: Fitur koreksi berat menggunakan diameter aktual hasil ukur jangka sorong untuk menghindari selisih tonase saat barang ditimbang di toko material.
-
-### 2. Algoritma Optimasi Pemotongan (Cutting Stock Problem)
-Mengimplementasikan algoritma heuristik **First-Fit Decreasing (FFD)** untuk memecahkan masalah kombinatorial pemotongan besi 12 meter:
-* **Efisiensi Tinggi**: Mengurutkan kebutuhan potongan dari terpanjang ke terpendek untuk menempatkannya pada ruang sisa paling optimal.
-* **Visualisasi Lapangan**: Menghasilkan instruksi pemotongan visual per batang yang mudah dipahami oleh pekerja di lapangan.
-
-### 3. Multi-Project Management & Persistent State
-* Pengguna dapat mengelola beberapa proyek konstruksi sekaligus secara dinamis.
-* Data di-persist ke dalam `localStorage` perangkat sehingga progres pengerjaan tidak hilang saat browser ditutup.
-
----
-
-## 🏛️ Arsitektur Kode & Desain Sistem
-
-```
-src/
-├── App.jsx              # Centralized State & Routing Tab
-├── main.jsx             # React Entry Point
-├── index.css            # Custom Design System (CSS Variables, Responsive Breakpoints)
-├── components/
-│   ├── LandingPage.jsx  # Welcome Screen & CTA
-│   ├── ProjectsView.jsx # Proyek Management (CRUD)
-│   ├── DashboardView.jsx# Ringkasan data & statistik proyek aktif
-│   ├── InputsView.jsx   # Form kalkulator berat & Tabel Rekapitulasi (BBS)
-│   ├── InventoryView.jsx# Master Ledger stok besi terkelompok
-│   └── CutListsView.jsx # Visualisasi skema pemotongan besi 12m
-└── utils/
-    ├── formulas.js      # Implementasi rumus berat SNI & overlap
-    └── optimizations.js # Engine optimasi cutting stock (FFD)
-```
-
-### Keputusan Rekayasa (Engineering Decisions)
-* **Vanilla CSS over Framework**: Desain dibangun sepenuhnya menggunakan CSS murni dengan variabel dinamis untuk performa loading maksimal tanpa beban dependensi pihak ketiga.
-* **React State Management (Lifting State Up)**: Menjaga alur data tetap searah (*unidirectional*) dengan menaruh state utama proyek di `App.jsx` untuk menjaga sinkronisasi data antar modul (Dashboard, Inputs, Inventory, dan Cut Lists).
-* **Performance Optimization**: Operasi berat seperti algoritma optimasi pemotongan di-memoized menggunakan `useMemo` agar kalkulasi ulang hanya berjalan saat daftar material berubah.
-
----
-
-## 🧪 Tech Stack
-
-* **Frontend**: React 19, Vite 8
-* **Styling**: Vanilla CSS (Custom Design System)
-* **Code Quality**: oxlint
-* **Storage**: Local Storage API (Browser-based)
-
----
-
-## 📖 Dokumentasi Terkait
-* **[Modul Belajar Internal](file_md/modul_belajar.md)**: Panduan detail mengenai arsitektur kode dan logika bisnis untuk pengembangan sistem lebih lanjut.
-
----
-
+<!-- PROJECT SHIELDS -->
 <div align="center">
 
-**Project Portfolio by [Poponetannhauser](https://github.com/Poponetannhauser)**
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
 </div>
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <h2 align="center">ILOVEBESI</h2>
+
+  <p align="center">
+    A professional construct-tech tool designed for Quantity Surveyors (QS), contractors, and steel fixers in Indonesia to calculate standard rebar weight and minimize waste using combinatorial optimization.
+    <br />
+    <a href="https://github.com/Poponetannhauser/i-love-besi"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/Poponetannhauser/i-love-besi">View Demo</a>
+    &middot;
+    <a href="https://github.com/Poponetannhauser/i-love-besi/issues">Report Bug</a>
+    &middot;
+    <a href="https://github.com/Poponetannhauser/i-love-besi/issues">Request Feature</a>
+  </p>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#features-and-engineering-highlights">Features & Engineering Highlights</a></li>
+    <li><a href="#mathematical-foundations">Mathematical Foundations</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+ILoveBesi is a lightweight web application tailored for real-world reinforcement steel (*rebar*) estimation on Indonesian construction sites. Standard estimators typically use simple multiplication formulas that ignore material wastage during actual cutting. This project serves as a showcase portfolio that solves two critical field challenges:
+1. **Logistics Discrepancy (Besi Banci)**: Detecting and correcting rebar weight calculations when supplier diameters deviate from official SNI labels using dynamic tolerance factors.
+2. **Material Optimization**: Solving the combinatoric 1D *Cutting Stock Problem* to compute optimal cutting patterns from standard 12-meter rebars, significantly minimizing steel scrap (*waste*).
+
+This project highlights unidirectional React state management, client-side persistence, modular custom CSS layout design, and memory-conscious calculations.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Built With
+
+This project is built purely using modern web APIs and does not rely on heavy external UI frameworks, prioritizing fast initial loading times.
+
+* [![React][React.js]][React-url]
+* [![Vite][Vite.js]][Vite-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+To run a local copy of this project on your system, follow these simple setup steps.
+
+### Prerequisites
+
+You only need Node.js installed on your machine.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
+
+### Installation
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/Poponetannhauser/i-love-besi.git
+   ```
+2. Navigate into the directory:
+   ```sh
+   cd i-love-besi
+   ```
+3. Install dependencies:
+   ```sh
+   npm install
+   ```
+4. Start the local development server:
+   ```sh
+   npm run dev
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- FEATURES AND ENGINEERING HIGHLIGHTS -->
+## Features and Engineering Highlights
+
+* **Precision Weight Calculator**: Formulates exact weights with guard clauses for negative values and decimal precision up to 4 places.
+* **1D Cutting Stock Optimizer**: Implements the **First-Fit Decreasing (FFD)** heuristic algorithm ($O(n \log n)$) to match field-required steel lengths against 12-meter base stock, presenting visual cutting schemes per bar.
+* **Master Ledger & Aggregations**: Groups and summarizes materials dynamically using React `useMemo` hooks to avoid expensive re-calculations on layout updates.
+* **Responsive Layout (iPad Pro Portrait Drawer)**: Optimized styling using pure CSS variables and responsive media queries that transition the sidebar into an overlay drawer for tablet interfaces.
+* **Persisted Multi-Project State**: Built-in state guard synchronization to store projects and steel cut lists locally within the browser's `localStorage`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MATHEMATICAL FOUNDATIONS -->
+## Mathematical Foundations
+
+### Standard SNI Rebar Weight
+The core engine computes the nominal rebar weight based on Indonesian National Standards (SNI):
+
+$$W = 0.006165 \times d^2 \times L \times N$$
+
+Where:
+* $d$ = diameter of the rebar (in millimeters)
+* $L$ = length of the bar (in meters, standard stock is 12m)
+* $N$ = quantity of rebars (in pieces)
+* $W$ = calculated total weight (in kilograms)
+
+### Overlap Length Calculation
+Calculates the extra splicing length needed when connecting two structural rebars:
+
+$$\text{Lap Splice} = \frac{d \times \text{Factor}}{1000}$$
+
+Where the *Factor* is typically standard structural values like $40d$ or $50d$.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+## Contact
+
+Paundra - paundraexe@gmail.com
+
+Project Link: [https://github.com/Poponetannhauser/i-love-besi](https://github.com/Poponetannhauser/i-love-besi)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Choose an Open Source License](https://choosealicense.com)
+* [Img Shields](https://shields.io)
+* [Oxlint Code Linter](https://oxc.rs/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/Poponetannhauser/i-love-besi.svg?style=for-the-badge
+[contributors-url]: https://github.com/Poponetannhauser/i-love-besi/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Poponetannhauser/i-love-besi.svg?style=for-the-badge
+[forks-url]: https://github.com/Poponetannhauser/i-love-besi/network/members
+[stars-shield]: https://img.shields.io/github/stars/Poponetannhauser/i-love-besi.svg?style=for-the-badge
+[stars-url]: https://github.com/Poponetannhauser/i-love-besi/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Poponetannhauser/i-love-besi.svg?style=for-the-badge
+[issues-url]: https://github.com/Poponetannhauser/i-love-besi/issues
+[license-shield]: https://img.shields.io/github/license/Poponetannhauser/i-love-besi.svg?style=for-the-badge
+[license-url]: https://github.com/Poponetannhauser/i-love-besi/blob/main/LICENSE
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/paundra
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://react.dev/
+[Vite.js]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white
+[Vite-url]: https://vite.dev/
