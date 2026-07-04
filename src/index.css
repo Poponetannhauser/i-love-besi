@@ -2087,6 +2087,43 @@ select:focus {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+
+  /* Table responsiveness and typography overrides on mobile */
+  .recap-table th,
+  .recap-table td,
+  .flat-table th,
+  .flat-table td,
+  .instructions-table th,
+  .instructions-table td {
+    padding: 0.5rem 0.6rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .recap-table td,
+  .flat-table td,
+  .instructions-table td {
+    white-space: nowrap;
+  }
+
+  /* Description columns can wrap naturally to keep layout readable */
+  .recap-table td:first-child,
+  .flat-table td:first-child {
+    white-space: normal;
+    min-width: 120px;
+  }
+
+  .badge {
+    padding: 0.15rem 0.4rem;
+    font-size: 0.65rem;
+  }
+}
+
+/* Global table-responsive scroll container styling */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
 }
 
 
