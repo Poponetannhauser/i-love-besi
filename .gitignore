@@ -30,3 +30,9 @@ dist-ssr
 .env.production.local
 .env.test.local
 
+# local documentation kept only locally, ignored in git repository
+file_md/
+ui_design/
+.agents/
+
+
