@@ -1,10 +1,9 @@
+import { apiService } from '../services/api';
+
 /**
- * Performs First-Fit Decreasing (FFD) cutting stock optimization
- * on the list of rebar items, grouped by diameter and steel type.
- * Standard stock length is 12 meters.
- * 
- * @param {Array} items - List of items from recapList
- * @returns {Object} Optimization metrics
+ * DEPRECATED LOCAL OPTIMIZATION:
+ * 1D Cutting Stock optimization engine moved to ASP.NET Core Web API (CuttingStockOptimizerService.cs).
+ * Use apiService.optimizeCutting() for backend First-Fit Decreasing (FFD) processing.
  */
 export const optimizeCuttingStock = (items) => {
   if (!items || items.length === 0) {
@@ -17,9 +16,8 @@ export const optimizeCuttingStock = (items) => {
   }
 
   const STOCK_LENGTH = 12.0;
-
-  // Group items by unique specification (diameter + steelType)
   const groups = {};
+
   items.forEach(item => {
     const key = `${item.diameter}-${item.steelType}`;
     if (!groups[key]) {
@@ -31,11 +29,8 @@ export const optimizeCuttingStock = (items) => {
   let totalBarsNeeded = 0;
   let totalCutLength = 0;
 
-  // Run FFD on each group
   Object.keys(groups).forEach(key => {
     const groupItems = groups[key];
-    
-    // 1. Flatten items: convert length + quantity to array of individual cut pieces
     const pieces = [];
     groupItems.forEach(item => {
       for (let i = 0; i < item.quantity; i++) {
@@ -43,14 +38,10 @@ export const optimizeCuttingStock = (items) => {
       }
     });
 
-    // 2. Sort pieces in descending order (Decreasing)
     pieces.sort((a, b) => b - a);
 
-    // 3. First-Fit allocation
-    const stocks = []; // Array representing remaining space in each bought 12m bar
-    
+    const stocks = [];
     pieces.forEach(piece => {
-      // Find the first stock bar that has enough capacity
       let placed = false;
       for (let i = 0; i < stocks.length; i++) {
         if (stocks[i] >= piece) {
@@ -60,7 +51,6 @@ export const optimizeCuttingStock = (items) => {
         }
       }
 
-      // If it doesn't fit in any existing bar, buy a new 12m stock bar
       if (!placed) {
         stocks.push(Number((STOCK_LENGTH - piece).toFixed(4)));
       }
@@ -71,12 +61,8 @@ export const optimizeCuttingStock = (items) => {
   });
 
   const totalPurchasedLength = totalBarsNeeded * STOCK_LENGTH;
-  const efficiency = totalPurchasedLength > 0 
-    ? (totalCutLength / totalPurchasedLength) * 100 
-    : 0;
-  const waste = totalPurchasedLength > 0 
-    ? 100 - efficiency 
-    : 0;
+  const efficiency = totalPurchasedLength > 0 ? (totalCutLength / totalPurchasedLength) * 100 : 0;
+  const waste = totalPurchasedLength > 0 ? 100 - efficiency : 0;
 
   return {
     barsNeeded: totalBarsNeeded,
