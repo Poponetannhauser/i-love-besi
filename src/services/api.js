@@ -6,6 +6,24 @@ const getAuthHeader = () => {
     return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 
+const handleResponse = async (response) => {
+    if (!response.ok) {
+        let errorMessage = `API Error (${response.status})`;
+        try {
+            const errData = await response.json();
+            if (errData && errData.message) {
+                errorMessage = errData.message;
+            } else if (errData && errData.Message) {
+                errorMessage = errData.Message;
+            }
+        } catch {
+            // fallback if response body is not JSON
+        }
+        throw new Error(errorMessage);
+    }
+    return await response.json();
+};
+
 export const apiService = {
     // Auth Endpoints
     login: async (emailOrUsername, password) => {
@@ -14,9 +32,10 @@ export const apiService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ emailOrUsername, password })
         });
-        if (!response.ok) throw new Error('Login failed');
-        const data = await response.json();
-        localStorage.setItem('jwt_token', data.token);
+        const data = await handleResponse(response);
+        if (data.token) {
+            localStorage.setItem('jwt_token', data.token);
+        }
         return data;
     },
 
@@ -26,9 +45,10 @@ export const apiService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password, role })
         });
-        if (!response.ok) throw new Error('Registration failed');
-        const data = await response.json();
-        localStorage.setItem('jwt_token', data.token);
+        const data = await handleResponse(response);
+        if (data.token) {
+            localStorage.setItem('jwt_token', data.token);
+        }
         return data;
     },
 
@@ -39,7 +59,7 @@ export const apiService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ diameterMm, lengthMeters, quantity, toleranceFactor })
         });
-        return await response.json();
+        return await handleResponse(response);
     },
 
     optimizeCutting: async (cutItems) => {
@@ -48,7 +68,7 @@ export const apiService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(cutItems)
         });
-        return await response.json();
+        return await handleResponse(response);
     },
 
     // Ledger Endpoints (Protected by JWT)
@@ -58,7 +78,7 @@ export const apiService = {
                 ...getAuthHeader()
             }
         });
-        return await response.json();
+        return await handleResponse(response);
     },
 
     saveLedger: async (ledgerData) => {
@@ -70,7 +90,7 @@ export const apiService = {
             },
             body: JSON.stringify(ledgerData)
         });
-        return await response.json();
+        return await handleResponse(response);
     },
 
     deleteLedger: async (id) => {
@@ -80,6 +100,6 @@ export const apiService = {
                 ...getAuthHeader()
             }
         });
-        return await response.json();
+        return await handleResponse(response);
     }
 };

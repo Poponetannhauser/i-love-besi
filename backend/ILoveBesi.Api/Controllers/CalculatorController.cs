@@ -23,6 +23,8 @@ namespace ILoveBesi.Api.Controllers
         [HttpPost("weight")]
         public IActionResult CalculateWeight([FromBody] RebarCalculateRequestDto dto)
         {
+            if (dto == null) return BadRequest(new { Message = "Calculation parameters required." });
+
             var weight = _calculatorService.CalculateWeightKg(dto.DiameterMm, dto.LengthMeters, dto.Quantity, dto.ToleranceFactor);
             var lapSplice = _calculatorService.CalculateLapSpliceMeters(dto.DiameterMm, dto.LapSpliceFactor);
 
@@ -39,6 +41,8 @@ namespace ILoveBesi.Api.Controllers
         [HttpPost("optimize-cutting")]
         public IActionResult OptimizeCutting([FromBody] List<CutRequestItemDto> items)
         {
+            if (items == null || items.Count == 0) return BadRequest(new { Message = "Cut items required for optimization." });
+
             var result = _optimizerService.Optimize1DCuttingStock(items);
             return Ok(result);
         }
