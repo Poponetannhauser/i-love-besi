@@ -2,10 +2,13 @@
 
 <a id="readme-top"></a>
 
+<<<<<<< HEAD
 <!-- PROJECT SHIELDS -->
 <div align="center">
 
 </div>
+=======
+>>>>>>> fc2054521d4bc7e9097a3d8276aed370fa485a68
 
 <!-- PROJECT LOGO -->
 <br />
@@ -172,6 +175,7 @@ The project is structured around iterative deployment:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<<<<<<< HEAD
 <!-- LICENSE -->
 
 ## License
@@ -180,6 +184,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+=======
+>>>>>>> fc2054521d4bc7e9097a3d8276aed370fa485a68
 <!-- CONTACT -->
 
 ## Contact
@@ -190,6 +196,7 @@ Project Link: [https://github.com/Poponetannhauser/i-love-besi](https://github.c
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<<<<<<< HEAD
 <!-- ACKNOWLEDGMENTS -->
 
 ## Acknowledgments
@@ -200,6 +207,8 @@ Project Link: [https://github.com/Poponetannhauser/i-love-besi](https://github.c
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+=======
+>>>>>>> fc2054521d4bc7e9097a3d8276aed370fa485a68
 <!-- MARKDOWN LINKS & IMAGES -->
 
 [contributors-shield]: https://img.shields.io/github/contributors/Poponetannhauser/i-love-besi.svg?style=for-the-badge
