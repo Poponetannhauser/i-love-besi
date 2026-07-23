@@ -3,7 +3,10 @@ export default function LandingPage({ onEnterApp }) {
     <div className="landing-page">
       {/* Landing Header */}
       <header className="landing-header">
-        <div className="brand-logo">ILOVEBESI</div>
+        <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <img src="/icons.png" alt="ILOVEBESI Icon" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+          <span>ILOVEBESI</span>
+        </div>
         <nav className="landing-nav">
           <a href="#features" className="landing-nav-link">Optimizations</a>
           <a href="#features" className="landing-nav-link">Inventory</a>

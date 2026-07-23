@@ -204,8 +204,9 @@ export default function App() {
           &times;
         </button>
 
-        <div className="brand-logo" onClick={() => { setView('landing'); setIsSidebarOpen(false); }} style={{ cursor: 'pointer', color: '#111827' }}>
-          ILOVEBESI
+        <div className="brand-logo" onClick={() => { setView('landing'); setIsSidebarOpen(false); }} style={{ cursor: 'pointer', color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <img src="/icons.png" alt="ILOVEBESI Icon" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+          <span>ILOVEBESI</span>
         </div>
         
         {activeProject ? (
